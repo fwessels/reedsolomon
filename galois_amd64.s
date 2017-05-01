@@ -5,8 +5,10 @@
 // Based on http://www.snia.org/sites/default/files2/SDC2013/presentations/NewThinking/EthanMiller_Screaming_Fast_Galois_Field%20Arithmetic_SIMD%20Instructions.pdf
 // and http://jerasure.org/jerasure/gf-complete/tree/master
 
+#include "textflag.h"
+
 // func galMulSSSE3Xor(low, high, in, out []byte)
-TEXT ·galMulSSSE3Xor(SB), 7, $0
+TEXT ·galMulSSSE3Xor(SB), NOSPLIT, $0-96
 	MOVQ   low+0(FP), SI     // SI: &low
 	MOVQ   high+24(FP), DX   // DX: &high
 	MOVOU  (SI), X6          // X6 low
@@ -45,7 +47,7 @@ done_xor:
 	RET
 
 // func galMulSSSE3(low, high, in, out []byte)
-TEXT ·galMulSSSE3(SB), 7, $0
+TEXT ·galMulSSSE3(SB), NOSPLIT, $0-96
 	MOVQ   low+0(FP), SI     // SI: &low
 	MOVQ   high+24(FP), DX   // DX: &high
 	MOVOU  (SI), X6          // X6 low
@@ -82,7 +84,7 @@ done:
 	RET
 
 // func galMulAVX2Xor(low, high, in, out []byte)
-TEXT ·galMulAVX2Xor(SB), 7, $0
+TEXT ·galMulAVX2Xor(SB), NOSPLIT, $0-96
 	MOVQ  low+0(FP), SI     // SI: &low
 	MOVQ  high+24(FP), DX   // DX: &high
 	MOVQ  $15, BX           // BX: low mask
@@ -124,7 +126,7 @@ done_xor_avx2:
 	RET
 
 // func galMulAVX2(low, high, in, out []byte)
-TEXT ·galMulAVX2(SB), 7, $0
+TEXT ·galMulAVX2(SB), NOSPLIT, $0-96
 	MOVQ  low+0(FP), SI     // SI: &low
 	MOVQ  high+24(FP), DX   // DX: &high
 	MOVQ  $15, BX           // BX: low mask
