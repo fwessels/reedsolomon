@@ -109,10 +109,10 @@ func testOpts() [][]Option {
 	}
 	opts := [][]Option{
 		{WithPAR1Matrix()}, {WithCauchyMatrix()},
-		{WithMaxGoroutines(1), WithMinSplitSize(500), withSSE3(false), withAVX2(false)},
-		{WithMaxGoroutines(5000), WithMinSplitSize(50), withSSE3(false), withAVX2(false)},
-		{WithMaxGoroutines(5000), WithMinSplitSize(500000), withSSE3(false), withAVX2(false)},
-		{WithMaxGoroutines(1), WithMinSplitSize(500000), withSSE3(false), withAVX2(false)},
+		{WithMaxGoroutines(1), WithMinSplitSize(500), withSSE3(false), withAVX2(false), withAVX512(false)},
+		{WithMaxGoroutines(5000), WithMinSplitSize(50), withSSE3(false), withAVX2(false), withAVX512(false)},
+		{WithMaxGoroutines(5000), WithMinSplitSize(500000), withSSE3(false), withAVX2(false), withAVX512(false)},
+		{WithMaxGoroutines(1), WithMinSplitSize(500000), withSSE3(false), withAVX2(false), withAVX512(false)},
 	}
 	for _, o := range opts[:] {
 		if defaultOptions.useSSSE3 {
@@ -125,6 +125,12 @@ func testOpts() [][]Option {
 			n := make([]Option, len(o), len(o)+1)
 			copy(n, o)
 			n = append(n, withAVX2(true))
+			opts = append(opts, n)
+		}
+		if defaultOptions.useAVX512 {
+			n := make([]Option, len(o), len(o)+1)
+			copy(n, o)
+			n = append(n, withAVX512(true))
 			opts = append(opts, n)
 		}
 	}

@@ -4,17 +4,18 @@ import (
 	"runtime"
 
 	"github.com/klauspost/cpuid"
+	"fmt"
 )
 
 // Option allows to override processing parameters.
 type Option func(*options)
 
 type options struct {
-	maxGoroutines              int
-	minSplitSize               int
-	useAVX2, useSSSE3, useSSE2 bool
-	usePAR1Matrix              bool
-	useCauchy                  bool
+	maxGoroutines                         int
+	minSplitSize                          int
+	useAVX512, useAVX2, useSSSE3, useSSE2 bool
+	usePAR1Matrix                         bool
+	useCauchy                             bool
 }
 
 var defaultOptions = options{
@@ -27,9 +28,11 @@ func init() {
 		defaultOptions.maxGoroutines = 1
 	}
 	// Detect CPU capabilities.
+	defaultOptions.useSSE2 = cpuid.CPU.SSE2()
 	defaultOptions.useSSSE3 = cpuid.CPU.SSSE3()
 	defaultOptions.useAVX2 = cpuid.CPU.AVX2()
-	defaultOptions.useSSE2 = cpuid.CPU.SSE2()
+	defaultOptions.useAVX512 = cpuid.CPU.AVX512F() && cpuid.CPU.AVX512BW()
+	fmt.Println("***\n****\n***\nAVX512\n***\n***\n***", defaultOptions.useAVX512)
 }
 
 // WithMaxGoroutines is the maximum number of goroutines number for encoding & decoding.
@@ -57,6 +60,12 @@ func WithMinSplitSize(n int) Option {
 	}
 }
 
+func withSSE2(enabled bool) Option {
+	return func(o *options) {
+		o.useSSE2 = enabled
+	}
+}
+
 func withSSE3(enabled bool) Option {
 	return func(o *options) {
 		o.useSSSE3 = enabled
@@ -69,9 +78,9 @@ func withAVX2(enabled bool) Option {
 	}
 }
 
-func withSSE2(enabled bool) Option {
+func withAVX512(enabled bool) Option {
 	return func(o *options) {
-		o.useSSE2 = enabled
+		o.useAVX512 = enabled
 	}
 }
 

@@ -184,3 +184,11 @@ loopback_xor_sse2:
 
 done_xor_sse2:
 	RET
+
+// func galMulAVX512Xor(low, high, in, out []byte)
+TEXT ·galMulAVX512Xor(SB), 7, $0
+	RET
+
+// func galMulAVX512(low, high, in, out []byte)
+TEXT ·galMulAVX512(SB), 7, $0
+	RET
