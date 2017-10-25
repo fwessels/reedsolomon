@@ -4,7 +4,6 @@ import (
 	"runtime"
 
 	"github.com/klauspost/cpuid"
-	"fmt"
 )
 
 // Option allows to override processing parameters.
