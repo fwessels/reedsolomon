@@ -93,7 +93,7 @@ TEXT ·galMulAVX2Xor(SB), 7, $0
 
 	LONG $0x384de3c4; WORD $0x01f6 // VINSERTI128 YMM6, YMM6, XMM6, 1 ; low
 	LONG $0x3845e3c4; WORD $0x01ff // VINSERTI128 YMM7, YMM7, XMM7, 1 ; high
-	LONG $0x787d62c4; BYTE $0xc5   // VPBROADCASTB YMM8, XMM5         ; X8: lomask (unpacked)
+	LONG $0x787d62c4; BYTE $0xc5   // VPBROADCASTB YMM8, XMM5         ; Y8: lomask (unpacked)
 
 	SHRQ  $5, R9         // len(in) /32
 	MOVQ  out+72(FP), DX // DX: &out
@@ -104,13 +104,13 @@ TEXT ·galMulAVX2Xor(SB), 7, $0
 loopback_xor_avx2:
 	LONG $0x066ffec5             // VMOVDQU YMM0, [rsi]
 	LONG $0x226ffec5             // VMOVDQU YMM4, [rdx]
-	LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4   ; X1: high input
-	LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8      ; X0: low input
-	LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8      ; X1: high input
-	LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; X2: mul low part
-	LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; X2: mul high part
-	LONG $0xdbefedc5             // VPXOR   YMM3, YMM2, YMM3    ; X3: Result
-	LONG $0xe4efe5c5             // VPXOR   YMM4, YMM3, YMM4    ; X4: Result
+	LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4       ; Y1: high input
+	LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8    ; Y0: low input
+	LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8    ; Y1: high input
+	LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; Y2: mul low part
+	LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; Y3: mul high part
+	LONG $0xdbefedc5             // VPXOR   YMM3, YMM2, YMM3    ; Y3: Result
+	LONG $0xe4efe5c5             // VPXOR   YMM4, YMM3, YMM4    ; Y4: Result
 	LONG $0x227ffec5             // VMOVDQU [rdx], YMM4
 
 	ADDQ $32, SI           // in+=32
@@ -135,7 +135,7 @@ TEXT ·galMulAVX2(SB), 7, $0
 
 	LONG $0x384de3c4; WORD $0x01f6 // VINSERTI128 YMM6, YMM6, XMM6, 1 ; low
 	LONG $0x3845e3c4; WORD $0x01ff // VINSERTI128 YMM7, YMM7, XMM7, 1 ; high
-	LONG $0x787d62c4; BYTE $0xc5   // VPBROADCASTB YMM8, XMM5         ; X8: lomask (unpacked)
+	LONG $0x787d62c4; BYTE $0xc5   // VPBROADCASTB YMM8, XMM5         ; Y8: lomask (unpacked)
 
 	SHRQ  $5, R9         // len(in) /32
 	MOVQ  out+72(FP), DX // DX: &out
@@ -145,12 +145,12 @@ TEXT ·galMulAVX2(SB), 7, $0
 
 loopback_avx2:
 	LONG $0x066ffec5             // VMOVDQU YMM0, [rsi]
-	LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4   ; X1: high input
-	LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8      ; X0: low input
-	LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8      ; X1: high input
-	LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; X2: mul low part
-	LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; X2: mul high part
-	LONG $0xe3efedc5             // VPXOR   YMM4, YMM2, YMM3    ; X4: Result
+	LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4       ; Y1: high input
+	LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8    ; Y0: low input
+	LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8    ; Y1: high input
+	LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; Y2: mul low part
+	LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; Y3: mul high part
+	LONG $0xe3efedc5             // VPXOR   YMM4, YMM2, YMM3    ; Y4: Result
 	LONG $0x227ffec5             // VMOVDQU [rdx], YMM4
 
 	ADDQ $32, SI       // in+=32
