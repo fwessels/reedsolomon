@@ -219,7 +219,7 @@ func benchmarkGalois(b *testing.B, size int) {
 	b.SetBytes(int64(size))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		galMulSlice(25, in[:], out[:], true, false)
+		galMulSlice(25, in[:], out[:], false, true)
 	}
 }
 
@@ -238,7 +238,7 @@ func benchmarkGaloisXor(b *testing.B, size int) {
 	b.SetBytes(int64(size))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		galMulSliceXor(177, in[:], out[:], true, false)
+		galMulSliceXor(177, in[:], out[:], false, true)
 	}
 }
 
