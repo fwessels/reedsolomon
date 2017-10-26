@@ -128,6 +128,7 @@ func TestGalois(t *testing.T) {
 		t.Fatal("galMultiply(23, 45) != 41")
 	}
 
+	// TODO: Go to > 64 bytes for AVX512 !
 	// Test slices (>32 entries to test assembler -- AVX2 & NEON)
 	in := []byte{0, 1, 2, 3, 4, 5, 6, 10, 50, 100, 150, 174, 201, 255, 99, 32, 67, 85, 200, 199, 198, 197, 196, 195, 194, 193, 192, 191, 190, 189, 188, 187, 186, 185}
 	out := make([]byte, len(in))
