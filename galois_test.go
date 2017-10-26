@@ -249,3 +249,63 @@ func BenchmarkGaloisXor128K(b *testing.B) {
 func BenchmarkGaloisXor1M(b *testing.B) {
 	benchmarkGaloisXor(b, 1024*1024)
 }
+
+func benchmarkGaloisXorParallel2(b *testing.B, size int) {
+	in := make([]byte, size)
+	in2 := make([]byte, size)
+	out := make([]byte, size)
+
+	opts := defaultOptions
+	opts.useSSSE3 = true
+
+	b.SetBytes(int64(size * 2))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		galMulSliceXorParallel2(177, in[:], out[:], in2[:], opts)
+	}
+}
+
+func BenchmarkGaloisXorParallel2_1M(b *testing.B) {
+	benchmarkGaloisXorParallel2(b, 1024*1024)
+}
+
+func benchmarkGaloisXorParallel3(b *testing.B, size int) {
+	in := make([]byte, size)
+	in2 := make([]byte, size)
+	in3 := make([]byte, size)
+	out := make([]byte, size)
+
+	opts := defaultOptions
+	opts.useSSSE3 = true
+
+	b.SetBytes(int64(size * 3))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		galMulSliceXorParallel3(177, in[:], out[:], in2[:], in3[:], opts)
+	}
+}
+
+func BenchmarkGaloisXorParallel3_1M(b *testing.B) {
+	benchmarkGaloisXorParallel3(b, 1024*1024)
+}
+
+func benchmarkGaloisXorParallel4(b *testing.B, size int) {
+	in := make([]byte, size)
+	in2 := make([]byte, size)
+	in3 := make([]byte, size)
+	in4 := make([]byte, size)
+	out := make([]byte, size)
+
+	opts := defaultOptions
+	opts.useSSSE3 = true
+
+	b.SetBytes(int64(size * 4))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		galMulSliceXorParallel4(177, in[:], out[:], in2[:], in3[:], in4[:], opts)
+	}
+}
+
+func BenchmarkGaloisXorParallel4_1M(b *testing.B) {
+	benchmarkGaloisXorParallel4(b, 1024*1024)
+}

@@ -184,3 +184,196 @@ loopback_xor_sse2:
 
 done_xor_sse2:
 	RET
+
+// func galMulAVX2XorParallel2(low, high, in, out, in2 []byte)
+TEXT ·galMulAVX2XorParallel2(SB), 7, $0
+        MOVQ  low+0(FP), SI     // SI: &low
+        MOVQ  high+24(FP), DX   // DX: &high
+        MOVQ  $15, BX           // BX: low mask
+        MOVQ  BX, X5
+        MOVOU (SI), X6          // X6 low
+        MOVOU (DX), X7          // X7: high
+        MOVQ  in_len+56(FP), R9 // R9: len(in)
+
+        LONG $0x384de3c4; WORD $0x01f6 // VINSERTI128 YMM6, YMM6, XMM6, 1 ; low
+        LONG $0x3845e3c4; WORD $0x01ff // VINSERTI128 YMM7, YMM7, XMM7, 1 ; high
+        LONG $0x787d62c4; BYTE $0xc5   // VPBROADCASTB YMM8, XMM5         ; Y8: lomask (unpacked)
+
+        SHRQ  $5, R9         // len(in) /32
+        MOVQ  out+72(FP), DX // DX: &out
+        MOVQ  in+48(FP), SI  // R11: &in
+        MOVQ  in2+96(FP), AX // AX: &in2
+        TESTQ R9, R9
+        JZ    done_xor_avx2_parallel2
+
+loopback_xor_avx2_parallel2:
+        LONG $0x066ffec5             // VMOVDQU YMM0, [rsi]
+        LONG $0x226ffec5             // VMOVDQU YMM4, [rdx]
+        LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4       ; Y1: high input
+        LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8    ; Y0: low input
+        LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8    ; Y1: high input
+        LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; Y2: mul low part
+        LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; Y3: mul high part
+        LONG $0xdbefedc5             // VPXOR   YMM3, YMM2, YMM3    ; Y3: Result
+        LONG $0xe4efe5c5             // VPXOR   YMM4, YMM3, YMM4    ; Y4: Result
+
+        LONG $0x066ffec5             // VMOVDQU YMM0, [rax]
+        LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4       ; Y1: high input
+        LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8    ; Y0: low input
+        LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8    ; Y1: high input
+        LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; Y2: mul low part
+        LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; Y3: mul high part
+        LONG $0xdbefedc5             // VPXOR   YMM3, YMM2, YMM3    ; Y3: Result
+        LONG $0xe4efe5c5             // VPXOR   YMM4, YMM3, YMM4    ; Y4: Result
+
+        LONG $0x227ffec5             // VMOVDQU [rdx], YMM4
+
+        ADDQ $32, SI           // in+=32
+        ADDQ $32, AX           // in2=32
+        ADDQ $32, DX           // out+=32
+        SUBQ $1, R9
+        JNZ  loopback_xor_avx2_parallel2
+
+done_xor_avx2_parallel2:
+        BYTE $0xc5; BYTE $0xf8; BYTE $0x77      // VZEROUPPER
+        RET
+
+// func galMulAVX2XorParallel3(low, high, in, out, in2, in3 []byte)
+TEXT ·galMulAVX2XorParallel3(SB), 7, $0
+        MOVQ  low+0(FP), SI     // SI: &low
+        MOVQ  high+24(FP), DX   // DX: &high
+        MOVQ  $15, BX           // BX: low mask
+        MOVQ  BX, X5
+        MOVOU (SI), X6          // X6 low
+        MOVOU (DX), X7          // X7: high
+        MOVQ  in_len+56(FP), R9 // R9: len(in)
+
+        LONG $0x384de3c4; WORD $0x01f6 // VINSERTI128 YMM6, YMM6, XMM6, 1 ; low
+        LONG $0x3845e3c4; WORD $0x01ff // VINSERTI128 YMM7, YMM7, XMM7, 1 ; high
+        LONG $0x787d62c4; BYTE $0xc5   // VPBROADCASTB YMM8, XMM5         ; Y8: lomask (unpacked)
+
+        SHRQ  $5, R9         // len(in) /32
+        MOVQ  out+72(FP), DX // DX: &out
+        MOVQ  in+48(FP), SI  // R11: &in
+        MOVQ  in2+96(FP), AX // AX: &in2
+        MOVQ  in2+120(FP), BX // BX: &in3
+        TESTQ R9, R9
+        JZ    done_xor_avx2_parallel3
+
+loopback_xor_avx2_parallel3:
+        LONG $0x066ffec5             // VMOVDQU YMM0, [rsi]
+        LONG $0x226ffec5             // VMOVDQU YMM4, [rdx]
+        LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4       ; Y1: high input
+        LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8    ; Y0: low input
+        LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8    ; Y1: high input
+        LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; Y2: mul low part
+        LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; Y3: mul high part
+        LONG $0xdbefedc5             // VPXOR   YMM3, YMM2, YMM3    ; Y3: Result
+        LONG $0xe4efe5c5             // VPXOR   YMM4, YMM3, YMM4    ; Y4: Result
+
+        LONG $0x066ffec5             // VMOVDQU YMM0, [rax]
+        LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4       ; Y1: high input
+        LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8    ; Y0: low input
+        LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8    ; Y1: high input
+        LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; Y2: mul low part
+        LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; Y3: mul high part
+        LONG $0xdbefedc5             // VPXOR   YMM3, YMM2, YMM3    ; Y3: Result
+        LONG $0xe4efe5c5             // VPXOR   YMM4, YMM3, YMM4    ; Y4: Result
+
+        LONG $0x066ffec5             // VMOVDQU YMM0, [rbx]
+        LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4       ; Y1: high input
+        LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8    ; Y0: low input
+        LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8    ; Y1: high input
+        LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; Y2: mul low part
+        LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; Y3: mul high part
+        LONG $0xdbefedc5             // VPXOR   YMM3, YMM2, YMM3    ; Y3: Result
+        LONG $0xe4efe5c5             // VPXOR   YMM4, YMM3, YMM4    ; Y4: Result
+
+        LONG $0x227ffec5             // VMOVDQU [rdx], YMM4
+
+        ADDQ $32, SI           // in+=32
+        ADDQ $32, AX           // in2=32
+        ADDQ $32, BX           // in3=32
+        ADDQ $32, DX           // out+=32
+        SUBQ $1, R9
+        JNZ  loopback_xor_avx2_parallel3
+
+done_xor_avx2_parallel3:
+        // VZEROUPPER
+        BYTE $0xc5; BYTE $0xf8; BYTE $0x77
+        RET
+
+// func galMulAVX2XorParallel4(low, high, in, out, in2, in3, in4 []byte)
+TEXT ·galMulAVX2XorParallel4(SB), 7, $0
+        MOVQ  low+0(FP), SI     // SI: &low
+        MOVQ  high+24(FP), DX   // DX: &high
+        MOVQ  $15, BX           // BX: low mask
+        MOVQ  BX, X5
+        MOVOU (SI), X6          // X6 low
+        MOVOU (DX), X7          // X7: high
+        MOVQ  in_len+56(FP), R9 // R9: len(in)
+
+        LONG $0x384de3c4; WORD $0x01f6 // VINSERTI128 YMM6, YMM6, XMM6, 1 ; low
+        LONG $0x3845e3c4; WORD $0x01ff // VINSERTI128 YMM7, YMM7, XMM7, 1 ; high
+        LONG $0x787d62c4; BYTE $0xc5   // VPBROADCASTB YMM8, XMM5         ; Y8: lomask (unpacked)
+
+        SHRQ  $5, R9         // len(in) /32
+        MOVQ  out+72(FP), DX // DX: &out
+        MOVQ  in+48(FP), SI  // R11: &in
+        MOVQ  in2+96(FP), AX // AX: &in2
+        MOVQ  in3+120(FP), BX // BX: &in3
+        MOVQ  in4+144(FP), CX // CX: &in4
+        TESTQ R9, R9
+        JZ    done_xor_avx2_parallel4
+
+loopback_xor_avx2_parallel4:
+        LONG $0x066ffec5             // VMOVDQU YMM0, [rsi]
+        LONG $0x226ffec5             // VMOVDQU YMM4, [rdx]
+        LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4       ; Y1: high input
+        LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8    ; Y0: low input
+        LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8    ; Y1: high input
+        LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; Y2: mul low part
+        LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; Y3: mul high part
+        LONG $0xdbefedc5             // VPXOR   YMM3, YMM2, YMM3    ; Y3: Result
+        LONG $0xe4efe5c5             // VPXOR   YMM4, YMM3, YMM4    ; Y4: Result
+
+        LONG $0x066ffec5             // VMOVDQU YMM0, [rax]
+        LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4       ; Y1: high input
+        LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8    ; Y0: low input
+        LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8    ; Y1: high input
+        LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; Y2: mul low part
+        LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; Y3: mul high part
+        LONG $0xdbefedc5             // VPXOR   YMM3, YMM2, YMM3    ; Y3: Result
+        LONG $0xe4efe5c5             // VPXOR   YMM4, YMM3, YMM4    ; Y4: Result
+
+        LONG $0x066ffec5             // VMOVDQU YMM0, [rbx]
+        LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4       ; Y1: high input
+        LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8    ; Y0: low input
+        LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8    ; Y1: high input
+        LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; Y2: mul low part
+        LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; Y3: mul high part
+        LONG $0xdbefedc5             // VPXOR   YMM3, YMM2, YMM3    ; Y3: Result
+        LONG $0xe4efe5c5             // VPXOR   YMM4, YMM3, YMM4    ; Y4: Result
+
+        LONG $0x066ffec5             // VMOVDQU YMM0, [rcx]
+        LONG $0xd073f5c5; BYTE $0x04 // VPSRLQ  YMM1, YMM0, 4       ; Y1: high input
+        LONG $0xdb7dc1c4; BYTE $0xc0 // VPAND   YMM0, YMM0, YMM8    ; Y0: low input
+        LONG $0xdb75c1c4; BYTE $0xc8 // VPAND   YMM1, YMM1, YMM8    ; Y1: high input
+        LONG $0x004de2c4; BYTE $0xd0 // VPSHUFB  YMM2, YMM6, YMM0   ; Y2: mul low part
+        LONG $0x0045e2c4; BYTE $0xd9 // VPSHUFB  YMM3, YMM7, YMM1   ; Y3: mul high part
+        LONG $0xdbefedc5             // VPXOR   YMM3, YMM2, YMM3    ; Y3: Result
+        LONG $0xe4efe5c5             // VPXOR   YMM4, YMM3, YMM4    ; Y4: Result
+
+        LONG $0x227ffec5             // VMOVDQU [rdx], YMM4
+
+        ADDQ $32, SI           // in+=32
+        ADDQ $32, AX           // in2=32
+        ADDQ $32, BX           // in3=32
+        ADDQ $32, CX           // in4=32
+        ADDQ $32, DX           // out+=32
+        SUBQ $1, R9
+        JNZ  loopback_xor_avx2_parallel4
+
+done_xor_avx2_parallel4:
+        BYTE $0xc5; BYTE $0xf8; BYTE $0x77 // VZEROUPPER
+        RET
