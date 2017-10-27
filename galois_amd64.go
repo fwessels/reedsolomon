@@ -84,9 +84,9 @@ func galMulSliceXor(c byte, in, out []byte, ssse3, avx2 bool) {
 	}
 }
 
-func galMulSliceXorParallel2(c byte, in, out, in2 []byte, o options) {
+func galMulSliceXorParallel2(c byte, in, out, in2 []byte, ssse3, avx2 bool) {
 	var done int
-	if o.useAVX2 {
+	if avx2 {
 		galMulAVX2XorParallel2(mulTableLow[c][:], mulTableHigh[c][:], in, out, in2)
 		done = (len(in) >> 5) << 5
 	}
@@ -99,9 +99,9 @@ func galMulSliceXorParallel2(c byte, in, out, in2 []byte, o options) {
 	}
 }
 
-func galMulSliceXorParallel3(c byte, in, out, in2, in3 []byte, o options) {
+func galMulSliceXorParallel3(c byte, in, out, in2, in3 []byte, ssse3, avx2 bool) {
 	var done int
-	if o.useAVX2 {
+	if avx2 {
 		galMulAVX2XorParallel3(mulTableLow[c][:], mulTableHigh[c][:], in, out, in2, in3)
 		done = (len(in) >> 5) << 5
 	}
@@ -114,9 +114,9 @@ func galMulSliceXorParallel3(c byte, in, out, in2, in3 []byte, o options) {
 	}
 }
 
-func galMulSliceXorParallel4(c byte, in, out, in2, in3, in4 []byte, o options) {
+func galMulSliceXorParallel4(c byte, in, out, in2, in3, in4 []byte, ssse3, avx2 bool) {
 	var done int
-	if o.useAVX2 {
+	if avx2 {
 		galMulAVX2XorParallel4(mulTableLow[c][:], mulTableHigh[c][:], in, out, in2, in3, in4)
 		done = (len(in) >> 5) << 5
 	}

@@ -406,11 +406,71 @@ func (r reedSolomon) Verify(shards [][]byte) (bool, error) {
 // The number of outputs computed, and the
 // number of matrix rows used, is determined by
 // outputCount, which is the number of outputs to compute.
-func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
-	if r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize {
-		r.codeSomeShardsP(matrixRows, inputs, outputs, outputCount, byteCount)
-		return
+func (r reedSolomon) codeSomeShardsParallel(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
+	for c := 0; c < r.DataShards; {
+		in := inputs[c]
+		if c % 3 == 0 && r.DataShards - c >= 4 {
+			in2 := inputs[c+1]
+			in3 := inputs[c+2]
+			in4 := inputs[c+3]
+			for iRow := 0; iRow < outputCount; iRow++ {
+				galMulSliceXorParallel4(matrixRows[iRow][c], in, outputs[iRow], in2, in3, in4, r.o.useSSSE3, r.o.useAVX2)
+			}
+			c += 4
+		} else if c % 2 == 0 && r.DataShards - c >= 3 {
+			in2 := inputs[c+1]
+			in3 := inputs[c+2]
+			for iRow := 0; iRow < outputCount; iRow++ {
+				galMulSliceXorParallel3(matrixRows[iRow][c], in, outputs[iRow], in2, in3, r.o.useSSSE3, r.o.useAVX2)
+			}
+			c += 3
+		} else if c % 1 == 0 && r.DataShards - c >= 2 {
+			in2 := inputs[c+1]
+			for iRow := 0; iRow < outputCount; iRow++ {
+				galMulSliceXorParallel2(matrixRows[iRow][c], in, outputs[iRow], in2, r.o.useSSSE3, r.o.useAVX2)
+			}
+			c += 2
+		} else {
+			for iRow := 0; iRow < outputCount; iRow++ {
+				galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow], r.o.useSSSE3, r.o.useAVX2)
+			}
+			c += 1
+		}
 	}
+}
+
+func (r reedSolomon) codeSomeShardsParallelRowOuter(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
+	for iRow := 0; iRow < outputCount; iRow++ {
+		for c := 0; c < r.DataShards; {
+			in := inputs[c]
+			if c % 3 == 0 && r.DataShards - c >= 4 {
+				in2 := inputs[c+1]
+				in3 := inputs[c+2]
+				in4 := inputs[c+3]
+				galMulSliceXorParallel4(matrixRows[iRow][c], in, outputs[iRow], in2, in3, in4, r.o.useSSSE3, r.o.useAVX2)
+				c += 4
+			} else if c % 2 == 0 && r.DataShards - c >= 3 {
+				in2 := inputs[c+1]
+				in3 := inputs[c+2]
+				galMulSliceXorParallel3(matrixRows[iRow][c], in, outputs[iRow], in2, in3, r.o.useSSSE3, r.o.useAVX2)
+				c += 3
+			} else if c % 1 == 0 && r.DataShards - c >= 2 {
+				in2 := inputs[c+1]
+				galMulSliceXorParallel2(matrixRows[iRow][c], in, outputs[iRow], in2, r.o.useSSSE3, r.o.useAVX2)
+				c += 2
+			} else {
+				galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow], r.o.useSSSE3, r.o.useAVX2)
+				c += 1
+			}
+		}
+	}
+}
+
+func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
+	//if r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize {
+	//	r.codeSomeShardsP(matrixRows, inputs, outputs, outputCount, byteCount)
+	//	return
+	//}
 	for c := 0; c < r.DataShards; c++ {
 		in := inputs[c]
 		for iRow := 0; iRow < outputCount; iRow++ {

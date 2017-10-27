@@ -261,7 +261,7 @@ func benchmarkGaloisXorParallel2(b *testing.B, size int) {
 	b.SetBytes(int64(size * 2))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		galMulSliceXorParallel2(177, in[:], out[:], in2[:], opts)
+		galMulSliceXorParallel2(177, in[:], out[:], in2[:], false, true)
 	}
 }
 
@@ -281,7 +281,7 @@ func benchmarkGaloisXorParallel3(b *testing.B, size int) {
 	b.SetBytes(int64(size * 3))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		galMulSliceXorParallel3(177, in[:], out[:], in2[:], in3[:], opts)
+		galMulSliceXorParallel3(177, in[:], out[:], in2[:], in3[:], false, true)
 	}
 }
 
@@ -302,7 +302,7 @@ func benchmarkGaloisXorParallel4(b *testing.B, size int) {
 	b.SetBytes(int64(size * 4))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		galMulSliceXorParallel4(177, in[:], out[:], in2[:], in3[:], in4[:], opts)
+		galMulSliceXorParallel4(177, in[:], out[:], in2[:], in3[:], in4[:], false, true)
 	}
 }
 
