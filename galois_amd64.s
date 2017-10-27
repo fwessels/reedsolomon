@@ -196,30 +196,30 @@ TEXT ·galMulAVX512Xor(SB), 7, $0
 
 	LONG $0x384de3c4; WORD $0x01f6             // VINSERTI128 YMM6, YMM6, XMM6, 1  ; low
 	LONG $0x3845e3c4; WORD $0x01ff             // VINSERTI128 YMM7, YMM7, XMM7, 1  ; high
-    LONG $0x48cdf362; WORD $0xf63a; BYTE $0x01 // VINSERTI64x4 ZMM6, ZMM6, YMM6, 1 ; low
-    LONG $0x48c5f362; WORD $0xff3a; BYTE $0x01 // VINSERTI64x4 ZMM7, ZMM7, YMM7, 1 ; high
-    LONG $0x487d7262; WORD $0xc578             // VPBROADCASTB zmm8, xmm5          ; X8: lomask (unpacked)
+	LONG $0x48cdf362; WORD $0xf63a; BYTE $0x01 // VINSERTI64x4 ZMM6, ZMM6, YMM6, 1 ; low
+	LONG $0x48c5f362; WORD $0xff3a; BYTE $0x01 // VINSERTI64x4 ZMM7, ZMM7, YMM7, 1 ; high
+	LONG $0x487d7262; WORD $0xc578             // VPBROADCASTB zmm8, xmm5          ; X8: lomask (unpacked)
 
-	SHRQ  $6, R9         // len(in) /64
-	MOVQ  out+72(FP), DX // DX: &out
-	MOVQ  in+48(FP), SI  // R11: &in
+	SHRQ  $6, R9          // len(in) /64
+	MOVQ  out+72(FP), DX  // DX: &out
+	MOVQ  in+48(FP), SI   // R11: &in
 	TESTQ R9, R9
 	JZ    done_xor_avx512
 
 loopback_xor_avx512:
-    LONG $0x48fef162; WORD $0x066f             // VMOVDQU64 ZMM0, [rsi]
-    LONG $0x48fef162; WORD $0x226f             // VMOVDQU64 ZMM4, [rdx]
-    LONG $0x48f5f162; WORD $0xd073; BYTE $0x04 // VPSRLQ   ZMM1, ZMM0, 4     ; Z1: high input
-    LONG $0x48fdd162; WORD $0xc0db             // VPANDQ   ZMM0, ZMM0, ZMM8  ; Z0: low input
-    LONG $0x48f5d162; WORD $0xc8db             // VPANDQ   ZMM1, ZMM1, ZMM8  ; Z1: high input
-    LONG $0x484df262; WORD $0xd000             // VPSHUFB  ZMM2, ZMM6, ZMM0  ; Z2: mul low part
-    LONG $0x4845f262; WORD $0xd900             // VPSHUFB  ZMM3, ZMM7, ZMM1  ; Z3: mul high part
-    LONG $0x48edf162; WORD $0xdbef             // VPXORQ   ZMM3, ZMM2, ZMM3  ; Z3: Result
-    LONG $0x48e5f162; WORD $0xe4ef             // VPXORQ   ZMM4, ZMM3, ZMM4  ; Z4: Result
-    LONG $0x48fef162; WORD $0x227f             // VMOVDQU64 [rdx], ZMM4
+	LONG $0x48fef162; WORD $0x066f             // VMOVDQU64 ZMM0, [rsi]
+	LONG $0x48fef162; WORD $0x226f             // VMOVDQU64 ZMM4, [rdx]
+	LONG $0x48f5f162; WORD $0xd073; BYTE $0x04 // VPSRLQ   ZMM1, ZMM0, 4     ; Z1: high input
+	LONG $0x48fdd162; WORD $0xc0db             // VPANDQ   ZMM0, ZMM0, ZMM8  ; Z0: low input
+	LONG $0x48f5d162; WORD $0xc8db             // VPANDQ   ZMM1, ZMM1, ZMM8  ; Z1: high input
+	LONG $0x484df262; WORD $0xd000             // VPSHUFB  ZMM2, ZMM6, ZMM0  ; Z2: mul low part
+	LONG $0x4845f262; WORD $0xd900             // VPSHUFB  ZMM3, ZMM7, ZMM1  ; Z3: mul high part
+	LONG $0x48edf162; WORD $0xdbef             // VPXORQ   ZMM3, ZMM2, ZMM3  ; Z3: Result
+	LONG $0x48e5f162; WORD $0xe4ef             // VPXORQ   ZMM4, ZMM3, ZMM4  ; Z4: Result
+	LONG $0x48fef162; WORD $0x227f             // VMOVDQU64 [rdx], ZMM4
 
-	ADDQ $64, SI       // in+=64
-	ADDQ $64, DX       // out+=64
+	ADDQ $64, SI             // in+=64
+	ADDQ $64, DX             // out+=64
 	SUBQ $1, R9
 	JNZ  loopback_xor_avx512
 
@@ -240,9 +240,9 @@ TEXT ·galMulAVX512(SB), 7, $0
 
 	LONG $0x384de3c4; WORD $0x01f6             // VINSERTI128 YMM6, YMM6, XMM6, 1  ; low
 	LONG $0x3845e3c4; WORD $0x01ff             // VINSERTI128 YMM7, YMM7, XMM7, 1  ; high
-    LONG $0x48cdf362; WORD $0xf63a; BYTE $0x01 // VINSERTI64x4 ZMM6, ZMM6, YMM6, 1 ; low
-    LONG $0x48c5f362; WORD $0xff3a; BYTE $0x01 // VINSERTI64x4 ZMM7, ZMM7, YMM7, 1 ; high
-    LONG $0x487d7262; WORD $0xc578             // VPBROADCASTB zmm8, xmm5          ; X8: lomask (unpacked)
+	LONG $0x48cdf362; WORD $0xf63a; BYTE $0x01 // VINSERTI64x4 ZMM6, ZMM6, YMM6, 1 ; low
+	LONG $0x48c5f362; WORD $0xff3a; BYTE $0x01 // VINSERTI64x4 ZMM7, ZMM7, YMM7, 1 ; high
+	LONG $0x487d7262; WORD $0xc578             // VPBROADCASTB zmm8, xmm5          ; X8: lomask (unpacked)
 
 	SHRQ  $6, R9         // len(in) /64
 	MOVQ  out+72(FP), DX // DX: &out
@@ -251,17 +251,17 @@ TEXT ·galMulAVX512(SB), 7, $0
 	JZ    done_avx512
 
 loopback_avx512:
-    LONG $0x48fef162; WORD $0x066f             // VMOVDQU64 ZMM0, [rsi]
-    LONG $0x48f5f162; WORD $0xd073; BYTE $0x04 // VPSRLQ   ZMM1, ZMM0, 4     ; Z1: high input
-    LONG $0x48fdd162; WORD $0xc0db             // VPANDQ   ZMM0, ZMM0, ZMM8  ; Z0: low input
-    LONG $0x48f5d162; WORD $0xc8db             // VPANDQ   ZMM1, ZMM1, ZMM8  ; Z1: high input
-    LONG $0x484df262; WORD $0xd000             // VPSHUFB  ZMM2, ZMM6, ZMM0  ; Z2: mul low part
-    LONG $0x4845f262; WORD $0xd900             // VPSHUFB  ZMM3, ZMM7, ZMM1  ; Z3: mul high part
-    LONG $0x48edf162; WORD $0xe3ef             // VPXORQ   ZMM4, ZMM2, ZMM3  ; Z4: Result
-    LONG $0x48fef162; WORD $0x227f             // VMOVDQU64 [rdx], ZMM4
+	LONG $0x48fef162; WORD $0x066f             // VMOVDQU64 ZMM0, [rsi]
+	LONG $0x48f5f162; WORD $0xd073; BYTE $0x04 // VPSRLQ   ZMM1, ZMM0, 4     ; Z1: high input
+	LONG $0x48fdd162; WORD $0xc0db             // VPANDQ   ZMM0, ZMM0, ZMM8  ; Z0: low input
+	LONG $0x48f5d162; WORD $0xc8db             // VPANDQ   ZMM1, ZMM1, ZMM8  ; Z1: high input
+	LONG $0x484df262; WORD $0xd000             // VPSHUFB  ZMM2, ZMM6, ZMM0  ; Z2: mul low part
+	LONG $0x4845f262; WORD $0xd900             // VPSHUFB  ZMM3, ZMM7, ZMM1  ; Z3: mul high part
+	LONG $0x48edf162; WORD $0xe3ef             // VPXORQ   ZMM4, ZMM2, ZMM3  ; Z4: Result
+	LONG $0x48fef162; WORD $0x227f             // VMOVDQU64 [rdx], ZMM4
 
-	ADDQ $64, SI       // in+=64
-	ADDQ $64, DX       // out+=64
+	ADDQ $64, SI         // in+=64
+	ADDQ $64, DX         // out+=64
 	SUBQ $1, R9
 	JNZ  loopback_avx512
 
