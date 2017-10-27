@@ -227,6 +227,10 @@ func benchmarkGalois(b *testing.B, size int) {
 	}
 }
 
+func BenchmarkGalois16K(b *testing.B) {
+	benchmarkGalois(b, 16*1024)
+}
+
 func BenchmarkGalois128K(b *testing.B) {
 	benchmarkGalois(b, 128*1024)
 }
@@ -247,6 +251,10 @@ func benchmarkGaloisXor(b *testing.B, size int) {
 	for i := 0; i < b.N; i++ {
 		galMulSliceXor(177, in[:], out[:], opts)
 	}
+}
+
+func BenchmarkGaloisXor16K(b *testing.B) {
+	benchmarkGaloisXor(b, 16*1024)
 }
 
 func BenchmarkGaloisXor128K(b *testing.B) {
