@@ -144,7 +144,7 @@ TEXT ·galMulAVX2(SB), 7, $0
 
 	VINSERTI128  $1, X14, LO, LO // low
 	VINSERTI128  $1, X15, HI, HI // high
-	VPBROADCASTB X5, Y13         // Y13: lomask (unpacked)
+	VPBROADCASTB X5, MASK        // lomask (unpacked)
 
 	SHRQ  $5, R9         // len(in) / 32
 	MOVQ  out+72(FP), DX // DX: &out
