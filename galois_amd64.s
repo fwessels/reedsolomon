@@ -252,18 +252,18 @@ TEXT ·galMulAVX2XorParallel22(SB), 7, $0
 	VINSERTI128  $1, XHI, HI, HI // high
 	VPBROADCASTB X5, MASK        // lomask (unpacked)
 
-	MOVQ  low2+144(FP), SI    // SI: &low2
-	MOVQ  high2+168(FP), DX   // DX: &high2
-	MOVOU (SI), XLO2         // XLO2: low
-	MOVOU (DX), XHI2         // XHI2: high
-	VINSERTI128  $1, XLO2, LO2, LO2 // low2
-	VINSERTI128  $1, XHI2, HI2, HI2 // high2
+	MOVQ        low2+144(FP), SI   // SI: &low2
+	MOVQ        high2+168(FP), DX  // DX: &high2
+	MOVOU       (SI), XLO2         // XLO2: low
+	MOVOU       (DX), XHI2         // XHI2: high
+	VINSERTI128 $1, XLO2, LO2, LO2 // low2
+	VINSERTI128 $1, XHI2, HI2, HI2 // high2
 
-	SHRQ  $5, R9                  // len(in) / 32
-	MOVQ  out+72(FP), DX          // DX: &out
-	MOVQ  in+48(FP), SI           // SI: &in
-	MOVQ  in2+96(FP), AX          // AX: &in2
-	MOVQ  out2+120(FP), BX        // BX: &out2
+	SHRQ  $5, R9                   // len(in) / 32
+	MOVQ  out+72(FP), DX           // DX: &out
+	MOVQ  in+48(FP), SI            // SI: &in
+	MOVQ  in2+96(FP), AX           // AX: &in2
+	MOVQ  out2+120(FP), BX         // BX: &out2
 	TESTQ R9, R9
 	JZ    done_xor_avx2_parallel22
 
@@ -275,24 +275,24 @@ loopback_xor_avx2_parallel22:
 	VMOVDQU (AX), Y1
 
 	GFMULL(Y0, LO, HI, Y3)
-	VPXOR   Y4, Y3, Y4 // Y4: Result
+	VPXOR Y4, Y3, Y4 // Y4: Result
 
 	GFMULL(Y1, LO, HI, Y3)
-	VPXOR   Y4, Y3, Y4 // Y4: Result
+	VPXOR Y4, Y3, Y4 // Y4: Result
 
 	GFMULL(Y0, LO2, HI2, Y3)
-	VPXOR   Y5, Y3, Y5 // Y5: Result
+	VPXOR Y5, Y3, Y5 // Y5: Result
 
 	GFMULL(Y1, LO2, HI2, Y3)
-	VPXOR   Y5, Y3, Y5 // Y5: Result
+	VPXOR Y5, Y3, Y5 // Y5: Result
 
 	VMOVDQU Y4, (DX)
 	VMOVDQU Y5, (BX)
 
-	ADDQ $32, SI                     // in+=32
-	ADDQ $32, AX                     // in2+=32
-	ADDQ $32, DX                     // out+=32
-	ADDQ $32, BX                     // out2+=32
+	ADDQ $32, SI                      // in+=32
+	ADDQ $32, AX                      // in2+=32
+	ADDQ $32, DX                      // out+=32
+	ADDQ $32, BX                      // out2+=32
 	SUBQ $1, R9
 	JNZ  loopback_xor_avx2_parallel22
 
