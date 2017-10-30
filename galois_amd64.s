@@ -81,8 +81,8 @@ loopback:
 done:
 	RET
 
-#define TMP0 Y10
-#define TMP1 Y11
+#define TMP0 Y7
+#define TMP1 Y12
 
 #define MASK Y13
 #define LO Y14
@@ -90,10 +90,15 @@ done:
 #define XLO X14
 #define XHI X15
 
-#define LO2 Y8
-#define HI2 Y9
-#define XLO2 X8
-#define XHI2 X9
+#define LO2 Y10
+#define HI2 Y11
+#define XLO2 X10
+#define XHI2 X11
+
+#define LO3 Y8
+#define HI3 Y9
+#define XLO3 X8
+#define XHI3 X9
 
 #define GFMULL(ymm, lo, hi, res) \
 	VPSRLQ  $4, ymm, TMP1    \ // TMP1: high input
@@ -346,6 +351,98 @@ loopback_xor_avx2_parallel3:
 	JNZ  loopback_xor_avx2_parallel3
 
 done_xor_avx2_parallel3:
+	VZEROUPPER
+	RET
+
+// func galMulAVX2XorParallel33(low, high, in, out, in2, in3, out2, out3, low2, high2, low3, high3 []byte)
+TEXT ·galMulAVX2XorParallel33(SB), 7, $0
+	MOVQ  low+0(FP), SI     // SI: &low
+	MOVQ  high+24(FP), DX   // DX: &high
+	MOVQ  $15, BX           // BX: low mask
+	MOVQ  BX, X5
+	MOVOU (SI), XLO         // XLO: low
+	MOVOU (DX), XHI         // XHI: high
+	MOVQ  in_len+56(FP), R9 // R9: len(in)
+
+	VINSERTI128  $1, XLO, LO, LO // low
+	VINSERTI128  $1, XHI, HI, HI // high
+	VPBROADCASTB X5, MASK        // lomask (unpacked)
+
+	MOVQ        low2+168(FP), SI   // SI: &low2
+	MOVQ        high2+192(FP), DX  // DX: &high2
+	MOVOU       (SI), XLO2         // XLO2: low2
+	MOVOU       (DX), XHI2         // XHI2: high2
+	VINSERTI128 $1, XLO2, LO2, LO2 // low2
+	VINSERTI128 $1, XHI2, HI2, HI2 // high2
+
+	MOVQ        low3+216(FP), SI   // SI: &low3
+	MOVQ        high3+240(FP), DX  // DX: &high3
+	MOVOU       (SI), XLO3         // XLO3: low3
+	MOVOU       (DX), XHI3         // XHI3: high3
+	VINSERTI128 $1, XLO3, LO3, LO3 // low3
+	VINSERTI128 $1, XHI3, HI3, HI3 // high3
+
+	SHRQ  $5, R9                   // len(in) / 32
+	MOVQ  out+72(FP), DX           // DX: &out
+	MOVQ  in+48(FP), SI            // SI: &in
+	MOVQ  in2+96(FP), AX           // AX: &in2
+	MOVQ  in3+120(FP), BX          // BX: &in3
+	MOVQ  out2+120(FP), CX         // CX: &out2
+	MOVQ  out3+144(FP), R10        // R10: &out3
+	TESTQ R9, R9
+	JZ    done_xor_avx2_parallel33
+
+loopback_xor_avx2_parallel33:
+	// NB Can use **SINGLE** register for output
+	VMOVDQU (DX), Y4
+	VMOVDQU (CX), Y5
+	VMOVDQU (R10), Y6
+
+	VMOVDQU (SI), Y0
+	VMOVDQU (AX), Y1
+	VMOVDQU (BX), Y2
+
+	GFMULL(Y0, LO, HI, Y3)
+	VPXOR Y4, Y3, Y4 // Y4: Result
+
+	GFMULL(Y1, LO, HI, Y3)
+	VPXOR Y4, Y3, Y4 // Y4: Result
+
+	GFMULL(Y2, LO, HI, Y3)
+	VPXOR Y4, Y3, Y4 // Y4: Result
+
+	GFMULL(Y0, LO2, HI2, Y3)
+	VPXOR Y5, Y3, Y5 // Y5: Result
+
+	GFMULL(Y1, LO2, HI2, Y3)
+	VPXOR Y5, Y3, Y5 // Y5: Result
+
+	GFMULL(Y2, LO2, HI2, Y3)
+	VPXOR Y5, Y3, Y5 // Y5: Result
+
+	GFMULL(Y0, LO3, HI3, Y3)
+	VPXOR Y6, Y3, Y6 // Y6: Result
+
+	GFMULL(Y1, LO3, HI3, Y3)
+	VPXOR Y6, Y3, Y6 // Y6: Result
+
+	GFMULL(Y2, LO3, HI3, Y3)
+	VPXOR Y6, Y3, Y6 // Y6: Result
+
+	VMOVDQU Y4, (DX)
+	VMOVDQU Y5, (CX)
+	VMOVDQU Y6, (R10)
+
+	ADDQ $32, SI                      // in+=32
+	ADDQ $32, AX                      // in2+=32
+	ADDQ $32, BX                      // in3+=32
+	ADDQ $32, DX                      // out+=32
+	ADDQ $32, CX                      // out2+=32
+	ADDQ $32, R10                     // out3+=32
+	SUBQ $1, R9
+	JNZ  loopback_xor_avx2_parallel33
+
+done_xor_avx2_parallel33:
 	VZEROUPPER
 	RET
 
