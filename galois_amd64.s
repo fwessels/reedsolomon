@@ -218,6 +218,32 @@ loopback_xor_avx512:
 	LONG $0x48e5f162; WORD $0xe4ef             // VPXORQ   ZMM4, ZMM3, ZMM4  ; Z4: Result
 	LONG $0x48fef162; WORD $0x227f             // VMOVDQU64 [rdx], ZMM4
 
+    // Following causes exception
+    //
+    //     LONG $0x4875f262; WORD $0xc2cf             // GF2P8MULB ZMM0 k0  ZMM1 ZMM2
+    //
+    //
+    // Obtained opcode as follows:
+    //   frank@hemelmeer:~/xed/obj/examples$ pwd
+    //     /home/frank/xed/obj/examples
+    //
+    //     $ ./xed -64 -e VGF2P8MULB zmm0 k0 zmm1 zmm2
+    //
+    //     $ ./xed -64 -de 62F27548CFC2
+    //     62F27548CFC2
+    //     ICLASS: VGF2P8MULB   CATEGORY: GFNI   EXTENSION: AVX512EVEX  IFORM: VGF2P8MULB_ZMMu8_MASKmskw_ZMMu8_ZMMu8_AVX512   ISA_SET: AVX512_GFN
+    //     I_512
+    //     SHORT: vgf2p8mulb zmm0, zmm1, zmm2
+    //     Encodable! 62F27548CFC2
+    //     Identical re-encoding
+    //
+    //
+    // Use latest master of xed:
+    //   frank@hemelmeer:~/xed$ git log
+    //     commit 8922c2d21ec7110f0ccf33bbdad146d93222918b
+    //     Author: Mark Charney <mark.charney@intel.com>
+    //     Date:   Tue Oct 17 21:01:59 2017 -0400
+
 	ADDQ $64, SI             // in+=64
 	ADDQ $64, DX             // out+=64
 	SUBQ $1, R9
