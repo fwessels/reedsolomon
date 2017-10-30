@@ -87,6 +87,8 @@ done:
 #define MASK Y13
 #define LO Y14
 #define HI Y15
+#define XLO X14
+#define XHI X15
 
 #define GFMULL(ymm, res) \
 	VPSRLQ  $4, ymm, TMP1    \ // TMP1: high input
@@ -102,12 +104,12 @@ TEXT ·galMulAVX2Xor(SB), 7, $0
 	MOVQ  high+24(FP), DX   // DX: &high
 	MOVQ  $15, BX           // BX: low mask
 	MOVQ  BX, X5
-	MOVOU (SI), X14         // X14: low
-	MOVOU (DX), X15         // X15: high
+	MOVOU (SI), XLO         // XLO: low
+	MOVOU (DX), XHI         // XHI: high
 	MOVQ  in_len+56(FP), R9 // R9: len(in)
 
-	VINSERTI128  $1, X14, LO, LO // low
-	VINSERTI128  $1, X15, HI, HI // high
+	VINSERTI128  $1, XLO, LO, LO // low
+	VINSERTI128  $1, XHI, HI, HI // high
 	VPBROADCASTB X5, MASK        // lomask (unpacked)
 
 	SHRQ  $5, R9         // len(in) / 32
@@ -138,12 +140,12 @@ TEXT ·galMulAVX2(SB), 7, $0
 	MOVQ  high+24(FP), DX   // DX: &high
 	MOVQ  $15, BX           // BX: low mask
 	MOVQ  BX, X5
-	MOVOU (SI), X14         // X14: low
-	MOVOU (DX), X15         // X15: high
+	MOVOU (SI), XLO         // XLO: low
+	MOVOU (DX), XHI         // XHI: high
 	MOVQ  in_len+56(FP), R9 // R9: len(in)
 
-	VINSERTI128  $1, X14, LO, LO // low
-	VINSERTI128  $1, X15, HI, HI // high
+	VINSERTI128  $1, XLO, LO, LO // low
+	VINSERTI128  $1, XHI, HI, HI // high
 	VPBROADCASTB X5, MASK        // lomask (unpacked)
 
 	SHRQ  $5, R9         // len(in) / 32
