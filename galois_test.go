@@ -275,6 +275,26 @@ func BenchmarkGaloisXorParallel2_1M(b *testing.B) {
 	benchmarkGaloisXorParallel2(b, 1024*1024)
 }
 
+func benchmarkGaloisXorParallel22(b *testing.B, size int) {
+	in := make([]byte, size)
+	in2 := make([]byte, size)
+	out := make([]byte, size)
+	out2 := make([]byte, size)
+
+	opts := defaultOptions
+	opts.useSSSE3 = true
+
+	b.SetBytes(int64(size * 4))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		galMulSliceXorParallel22(177, 25, in[:], out[:], in2[:], out2[:], false, true)
+	}
+}
+
+func BenchmarkGaloisXorParallel22_1M(b *testing.B) {
+	benchmarkGaloisXorParallel22(b, 1024*1024)
+}
+
 func benchmarkGaloisXorParallel3(b *testing.B, size int) {
 	in := make([]byte, size)
 	in2 := make([]byte, size)

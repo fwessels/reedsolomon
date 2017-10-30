@@ -24,6 +24,9 @@ func sSE2XorSlice(in, out []byte)
 func galMulAVX2XorParallel2(low, high, in, out, in2 []byte)
 
 //go:noescape
+func galMulAVX2XorParallel22(low, high, in, out, in2, out2, low2, high2 []byte)
+
+//go:noescape
 func galMulAVX2XorParallel3(low, high, in, out, in2, in3 []byte)
 
 //go:noescape
@@ -88,6 +91,21 @@ func galMulSliceXorParallel2(c byte, in, out, in2 []byte, ssse3, avx2 bool) {
 	var done int
 	if avx2 {
 		galMulAVX2XorParallel2(mulTableLow[c][:], mulTableHigh[c][:], in, out, in2)
+		done = (len(in) >> 5) << 5
+	}
+	remain := len(in) - done
+	if remain > 0 {
+		mt := mulTable[c]
+		for i := done; i < len(in); i++ {
+			out[i] ^= mt[in[i]]
+		}
+	}
+}
+
+func galMulSliceXorParallel22(c, c2 byte, in, out, in2, out2 []byte, ssse3, avx2 bool) {
+	var done int
+	if avx2 {
+		galMulAVX2XorParallel22(mulTableLow[c][:], mulTableHigh[c][:], in, out, in2, out2, mulTableLow[c2][:], mulTableHigh[c2][:])
 		done = (len(in) >> 5) << 5
 	}
 	remain := len(in) - done
