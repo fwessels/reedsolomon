@@ -224,7 +224,7 @@ loopback_xor_avx2_parallel2:
 	VMOVDQU Y4, (DX)
 
 	ADDQ $32, SI                     // in+=32
-	ADDQ $32, AX                     // in2=32
+	ADDQ $32, AX                     // in2+=32
 	ADDQ $32, DX                     // out+=32
 	SUBQ $1, R9
 	JNZ  loopback_xor_avx2_parallel2
@@ -272,8 +272,8 @@ loopback_xor_avx2_parallel3:
 	VMOVDQU Y4, (DX)
 
 	ADDQ $32, SI                     // in+=32
-	ADDQ $32, AX                     // in2=32
-	ADDQ $32, BX                     // in3=32
+	ADDQ $32, AX                     // in2+=32
+	ADDQ $32, BX                     // in3+=32
 	ADDQ $32, DX                     // out+=32
 	SUBQ $1, R9
 	JNZ  loopback_xor_avx2_parallel3
@@ -326,9 +326,9 @@ loopback_xor_avx2_parallel4:
 	VMOVDQU Y4, (DX)
 
 	ADDQ $32, SI                     // in+=32
-	ADDQ $32, AX                     // in2=32
-	ADDQ $32, BX                     // in3=32
-	ADDQ $32, CX                     // in4=32
+	ADDQ $32, AX                     // in2+=32
+	ADDQ $32, BX                     // in3+=32
+	ADDQ $32, CX                     // in4+=32
 	ADDQ $32, DX                     // out+=32
 	SUBQ $1, R9
 	JNZ  loopback_xor_avx2_parallel4
