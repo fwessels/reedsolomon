@@ -100,37 +100,47 @@ done:
 #define XLO3 X8
 #define XHI3 X9
 
+// Macro to setup multiplication table
+#define MULTABLE(arglo, arghi, xlo, xhi, ylo, yhi) \
+	MOVQ        arglo, SI         \ // SI: &low
+	MOVQ        arghi, DX         \ // DX: &high
+	MOVOU       (SI), xlo         \ // XLO: low
+	MOVOU       (DX), xhi         \ // XHI: high
+	VINSERTI128 $1, xlo, ylo, ylo \ // low
+	VINSERTI128 $1, xhi, yhi, yhi // high
+
+// Macro to setup mask for multiplication
+#define MULMASK \
+	MOVQ         $15, BX  \ // BX: low mask
+	MOVQ         BX, X5   \
+	VPBROADCASTB X5, MASK // lomask (unpacked)
+
+// Macro for polynomial multiply followed by addition
+#define GFMULLXOR(ymm, lo, hi, res) \
+	GFMULL(ymm, lo, hi)  \
+	VPXOR res, TMP0, res
+
+// Macro for polynomial multiply
 #define GFMULL(ymm, lo, hi) \
 	VPSRLQ  $4, ymm, TMP1    \ // TMP1: high input
 	VPAND   MASK, ymm, TMP0  \ // TMP0: low input
 	VPAND   MASK, TMP1, TMP1 \ // TMP1: high input
 	VPSHUFB TMP0, lo, TMP0   \ // TMP0: mul low part
 	VPSHUFB TMP1, hi, TMP1   \ // TMP1: mul high part
-	VPXOR   TMP0, TMP1, TMP0  // TMP0: Result
-
-#define GFMULLXOR(ymm, lo, hi, res) \
-    GFMULL(ymm, lo, hi) \
- 	VPXOR   res, TMP0, res
+	VPXOR   TMP0, TMP1, TMP0 // TMP0: Result
 
 // func galMulAVX2Xor(low, high, in, out []byte)
 TEXT ·galMulAVX2Xor(SB), 7, $0
-	MOVQ  low+0(FP), SI     // SI: &low
-	MOVQ  high+24(FP), DX   // DX: &high
-	MOVQ  $15, BX           // BX: low mask
-	MOVQ  BX, X5
-	MOVOU (SI), XLO         // XLO: low
-	MOVOU (DX), XHI         // XHI: high
 	MOVQ  in_len+56(FP), R9 // R9: len(in)
-
-	VINSERTI128  $1, XLO, LO, LO // low
-	VINSERTI128  $1, XHI, HI, HI // high
-	VPBROADCASTB X5, MASK        // lomask (unpacked)
-
-	SHRQ  $5, R9         // len(in) / 32
-	MOVQ  out+72(FP), DX // DX: &out
-	MOVQ  in+48(FP), SI  // SI: &in
+	SHRQ  $5, R9            // len(in) / 32
 	TESTQ R9, R9
 	JZ    done_xor_avx2
+
+	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULMASK
+
+	MOVQ out+72(FP), DX // DX: &out
+	MOVQ in+48(FP), SI  // SI: &in
 
 loopback_xor_avx2:
 	VMOVDQU (SI), Y0
@@ -149,23 +159,16 @@ done_xor_avx2:
 
 // func galMulAVX2(low, high, in, out []byte)
 TEXT ·galMulAVX2(SB), 7, $0
-	MOVQ  low+0(FP), SI     // SI: &low
-	MOVQ  high+24(FP), DX   // DX: &high
-	MOVQ  $15, BX           // BX: low mask
-	MOVQ  BX, X5
-	MOVOU (SI), XLO         // XLO: low
-	MOVOU (DX), XHI         // XHI: high
 	MOVQ  in_len+56(FP), R9 // R9: len(in)
-
-	VINSERTI128  $1, XLO, LO, LO // low
-	VINSERTI128  $1, XHI, HI, HI // high
-	VPBROADCASTB X5, MASK        // lomask (unpacked)
-
-	SHRQ  $5, R9         // len(in) / 32
-	MOVQ  out+72(FP), DX // DX: &out
-	MOVQ  in+48(FP), SI  // SI: &in
+	SHRQ  $5, R9            // len(in) / 32
 	TESTQ R9, R9
 	JZ    done_avx2
+
+	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULMASK
+
+	MOVQ out+72(FP), DX // DX: &out
+	MOVQ in+48(FP), SI  // SI: &in
 
 loopback_avx2:
 	VMOVDQU (SI), Y0
@@ -205,24 +208,17 @@ done_xor_sse2:
 
 // func galMulAVX2XorParallel2(low, high, in, out, in2 []byte)
 TEXT ·galMulAVX2XorParallel2(SB), 7, $0
-	MOVQ  low+0(FP), SI     // SI: &low
-	MOVQ  high+24(FP), DX   // DX: &high
-	MOVQ  $15, BX           // BX: low mask
-	MOVQ  BX, X5
-	MOVOU (SI), XLO         // XLO: low
-	MOVOU (DX), XHI         // XHI: high
-	MOVQ  in_len+56(FP), R9 // R9: len(in)
-
-	VINSERTI128  $1, XLO, LO, LO // low
-	VINSERTI128  $1, XHI, HI, HI // high
-	VPBROADCASTB X5, MASK        // lomask (unpacked)
-
+	MOVQ  in_len+56(FP), R9       // R9: len(in)
 	SHRQ  $5, R9                  // len(in) / 32
-	MOVQ  out+72(FP), DX          // DX: &out
-	MOVQ  in+48(FP), SI           // SI: &in
-	MOVQ  in2+96(FP), AX          // AX: &in2
 	TESTQ R9, R9
 	JZ    done_xor_avx2_parallel2
+
+	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULMASK
+
+	MOVQ out+72(FP), DX // DX: &out
+	MOVQ in+48(FP), SI  // SI: &in
+	MOVQ in2+96(FP), AX // AX: &in2
 
 loopback_xor_avx2_parallel2:
 	VMOVDQU (SI), Y0
@@ -247,32 +243,19 @@ done_xor_avx2_parallel2:
 
 // func galMulAVX2XorParallel22(low, high, in, out, in2, out2, low2, high2 []byte)
 TEXT ·galMulAVX2XorParallel22(SB), 7, $0
-	MOVQ  low+0(FP), SI     // SI: &low
-	MOVQ  high+24(FP), DX   // DX: &high
-	MOVQ  $15, BX           // BX: low mask
-	MOVQ  BX, X5
-	MOVOU (SI), XLO         // XLO: low
-	MOVOU (DX), XHI         // XHI: high
-	MOVQ  in_len+56(FP), R9 // R9: len(in)
-
-	VINSERTI128  $1, XLO, LO, LO // low
-	VINSERTI128  $1, XHI, HI, HI // high
-	VPBROADCASTB X5, MASK        // lomask (unpacked)
-
-	MOVQ        low2+144(FP), SI   // SI: &low2
-	MOVQ        high2+168(FP), DX  // DX: &high2
-	MOVOU       (SI), XLO2         // XLO2: low
-	MOVOU       (DX), XHI2         // XHI2: high
-	VINSERTI128 $1, XLO2, LO2, LO2 // low2
-	VINSERTI128 $1, XHI2, HI2, HI2 // high2
-
+	MOVQ  in_len+56(FP), R9        // R9: len(in)
 	SHRQ  $5, R9                   // len(in) / 32
-	MOVQ  out+72(FP), DX           // DX: &out
-	MOVQ  in+48(FP), SI            // SI: &in
-	MOVQ  in2+96(FP), AX           // AX: &in2
-	MOVQ  out2+120(FP), BX         // BX: &out2
 	TESTQ R9, R9
 	JZ    done_xor_avx2_parallel22
+
+	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULTABLE(low2+144(FP), high2+168(FP), XLO2, XHI2, LO2, HI2)
+	MULMASK
+
+	MOVQ out+72(FP), DX   // DX: &out
+	MOVQ in+48(FP), SI    // SI: &in
+	MOVQ in2+96(FP), AX   // AX: &in2
+	MOVQ out2+120(FP), BX // BX: &out2
 
 loopback_xor_avx2_parallel22:
 	VMOVDQU (DX), Y4
@@ -303,25 +286,18 @@ done_xor_avx2_parallel22:
 
 // func galMulAVX2XorParallel3(low, high, in, out, in2, in3 []byte)
 TEXT ·galMulAVX2XorParallel3(SB), 7, $0
-	MOVQ  low+0(FP), SI     // SI: &low
-	MOVQ  high+24(FP), DX   // DX: &high
-	MOVQ  $15, BX           // BX: low mask
-	MOVQ  BX, X5
-	MOVOU (SI), XLO         // XLO: low
-	MOVOU (DX), XHI         // XHI: high
-	MOVQ  in_len+56(FP), R9 // R9: len(in)
-
-	VINSERTI128  $1, XLO, LO, LO // low
-	VINSERTI128  $1, XHI, HI, HI // high
-	VPBROADCASTB X5, MASK        // lomask (unpacked)
-
+	MOVQ  in_len+56(FP), R9       // R9: len(in)
 	SHRQ  $5, R9                  // len(in) / 32
-	MOVQ  out+72(FP), DX          // DX: &out
-	MOVQ  in+48(FP), SI           // SI: &in
-	MOVQ  in2+96(FP), AX          // AX: &in2
-	MOVQ  in3+120(FP), BX         // BX: &in3
 	TESTQ R9, R9
 	JZ    done_xor_avx2_parallel3
+
+	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULMASK
+
+	MOVQ out+72(FP), DX  // DX: &out
+	MOVQ in+48(FP), SI   // SI: &in
+	MOVQ in2+96(FP), AX  // AX: &in2
+	MOVQ in3+120(FP), BX // BX: &in3
 
 loopback_xor_avx2_parallel3:
 	VMOVDQU (SI), Y0
@@ -350,41 +326,22 @@ done_xor_avx2_parallel3:
 
 // func galMulAVX2XorParallel33(low, high, in, out, in2, in3, out2, out3, low2, high2, low3, high3 []byte)
 TEXT ·galMulAVX2XorParallel33(SB), 7, $0
-	MOVQ  low+0(FP), SI     // SI: &low
-	MOVQ  high+24(FP), DX   // DX: &high
-	MOVQ  $15, BX           // BX: low mask
-	MOVQ  BX, X5
-	MOVOU (SI), XLO         // XLO: low
-	MOVOU (DX), XHI         // XHI: high
-	MOVQ  in_len+56(FP), R9 // R9: len(in)
-
-	VINSERTI128  $1, XLO, LO, LO // low
-	VINSERTI128  $1, XHI, HI, HI // high
-	VPBROADCASTB X5, MASK        // lomask (unpacked)
-
-	MOVQ        low2+168(FP), SI   // SI: &low2
-	MOVQ        high2+192(FP), DX  // DX: &high2
-	MOVOU       (SI), XLO2         // XLO2: low2
-	MOVOU       (DX), XHI2         // XHI2: high2
-	VINSERTI128 $1, XLO2, LO2, LO2 // low2
-	VINSERTI128 $1, XHI2, HI2, HI2 // high2
-
-	MOVQ        low3+216(FP), SI   // SI: &low3
-	MOVQ        high3+240(FP), DX  // DX: &high3
-	MOVOU       (SI), XLO3         // XLO3: low3
-	MOVOU       (DX), XHI3         // XHI3: high3
-	VINSERTI128 $1, XLO3, LO3, LO3 // low3
-	VINSERTI128 $1, XHI3, HI3, HI3 // high3
-
+	MOVQ  in_len+56(FP), R9        // R9: len(in)
 	SHRQ  $5, R9                   // len(in) / 32
-	MOVQ  out+72(FP), DX           // DX: &out
-	MOVQ  in+48(FP), SI            // SI: &in
-	MOVQ  in2+96(FP), AX           // AX: &in2
-	MOVQ  in3+120(FP), BX          // BX: &in3
-	MOVQ  out2+120(FP), CX         // CX: &out2
-	MOVQ  out3+144(FP), R10        // R10: &out3
 	TESTQ R9, R9
 	JZ    done_xor_avx2_parallel33
+
+	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULTABLE(low2+168(FP), high2+192(FP), XLO2, XHI2, LO2, HI2)
+	MULTABLE(low3+216(FP), high3+240(FP), XLO3, XHI3, LO3, HI3)
+	MULMASK
+
+	MOVQ out+72(FP), DX    // DX: &out
+	MOVQ in+48(FP), SI     // SI: &in
+	MOVQ in2+96(FP), AX    // AX: &in2
+	MOVQ in3+120(FP), BX   // BX: &in3
+	MOVQ out2+120(FP), CX  // CX: &out2
+	MOVQ out3+144(FP), R10 // R10: &out3
 
 loopback_xor_avx2_parallel33:
 	// NB Can use **SINGLE** register for output
@@ -427,26 +384,19 @@ done_xor_avx2_parallel33:
 
 // func galMulAVX2XorParallel4(low, high, in, out, in2, in3 []byte)
 TEXT ·galMulAVX2XorParallel4(SB), 7, $0
-	MOVQ  low+0(FP), SI     // SI: &low
-	MOVQ  high+24(FP), DX   // DX: &high
-	MOVQ  $15, BX           // BX: low mask
-	MOVQ  BX, X5
-	MOVOU (SI), XLO         // XLO: low
-	MOVOU (DX), XHI         // XHI: high
-	MOVQ  in_len+56(FP), R9 // R9: len(in)
-
-	VINSERTI128  $1, XLO, LO, LO // low
-	VINSERTI128  $1, XHI, HI, HI // high
-	VPBROADCASTB X5, MASK        // lomask (unpacked)
-
+	MOVQ  in_len+56(FP), R9       // R9: len(in)
 	SHRQ  $5, R9                  // len(in) / 32
-	MOVQ  out+72(FP), DX          // DX: &out
-	MOVQ  in+48(FP), SI           // SI: &in
-	MOVQ  in2+96(FP), AX          // AX: &in2
-	MOVQ  in3+120(FP), BX         // BX: &in3
-	MOVQ  in4+144(FP), CX         // CX: &in4
 	TESTQ R9, R9
 	JZ    done_xor_avx2_parallel4
+
+	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULMASK
+
+	MOVQ out+72(FP), DX  // DX: &out
+	MOVQ in+48(FP), SI   // SI: &in
+	MOVQ in2+96(FP), AX  // AX: &in2
+	MOVQ in3+120(FP), BX // BX: &in3
+	MOVQ in4+144(FP), CX // CX: &in4
 
 loopback_xor_avx2_parallel4:
 	VMOVDQU (SI), Y0
