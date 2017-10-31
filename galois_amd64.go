@@ -35,6 +35,9 @@ func galMulAVX2XorParallel33(low, high, in, out, in2, in3, out2, out3, low2, hig
 //go:noescape
 func galMulAVX2XorParallel4(low, high, in, out, in2, in3, in4 []byte)
 
+//go:noescape
+func galMulAVX2XorParallel44(low, high, in, out, in2, in3, in4, out2, out3, out4, low2, high2, low3, high3, low4, high4 []byte)
+
 // This is what the assembler routines do in blocks of 16 bytes:
 /*
 func galMulSSSE3(low, high, in, out []byte) {
@@ -164,6 +167,22 @@ func galMulSliceXorParallel4(c byte, in, out, in2, in3, in4 []byte, ssse3, avx2 
 		}
 	}
 }
+
+func galMulSliceXorParallel44(c, c2, c3, c4 byte, in, out, in2, out2, in3, out3, in4, out4 []byte, ssse3, avx2 bool) {
+	var done int
+	if avx2 {
+		galMulAVX2XorParallel44(mulTableLow[c][:], mulTableHigh[c][:], in, out, in2, in3, in4, out2, out3, out4, mulTableLow[c2][:], mulTableHigh[c2][:], mulTableLow[c3][:], mulTableHigh[c3][:], mulTableLow[c4][:], mulTableHigh[c4][:])
+		done = (len(in) >> 5) << 5
+	}
+	remain := len(in) - done
+	if remain > 0 {
+		mt := mulTable[c]
+		for i := done; i < len(in); i++ {
+			out[i] ^= mt[in[i]]
+		}
+	}
+}
+
 
 // slice galois add
 func sliceXor(in, out []byte, sse2 bool) {
