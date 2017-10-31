@@ -85,10 +85,11 @@ done:
 #define TMP1 Y12
 
 #define MASK Y13
-#define LO Y14
-#define HI Y15
-#define XLO X14
-#define XHI X15
+
+#define LO1 Y14
+#define HI1 Y15
+#define XLO1 X14
+#define XHI1 X15
 
 #define LO2 Y10
 #define HI2 Y11
@@ -136,7 +137,7 @@ TEXT ·galMulAVX2Xor(SB), 7, $0
 	TESTQ R9, R9
 	JZ    done_xor_avx2
 
-	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULTABLE(low+0(FP), high+24(FP), XLO1, XHI1, LO1, HI1)
 	MULMASK
 
 	MOVQ out+72(FP), DX // DX: &out
@@ -145,7 +146,7 @@ TEXT ·galMulAVX2Xor(SB), 7, $0
 loopback_xor_avx2:
 	VMOVDQU (SI), Y0
 	VMOVDQU (DX), Y4
-	GFMULLXOR(Y0, LO, HI, Y4)
+	GFMULLXOR(Y0, LO1, HI1, Y4)
 	VMOVDQU Y4, (DX)
 
 	ADDQ $32, SI           // in+=32
@@ -164,7 +165,7 @@ TEXT ·galMulAVX2(SB), 7, $0
 	TESTQ R9, R9
 	JZ    done_avx2
 
-	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULTABLE(low+0(FP), high+24(FP), XLO1, XHI1, LO1, HI1)
 	MULMASK
 
 	MOVQ out+72(FP), DX // DX: &out
@@ -172,7 +173,7 @@ TEXT ·galMulAVX2(SB), 7, $0
 
 loopback_avx2:
 	VMOVDQU (SI), Y0
-	GFMULL(Y0, LO, HI)
+	GFMULL(Y0, LO1, HI1)
 	VMOVDQU TMP0, (DX)
 
 	ADDQ $32, SI       // in+=32
@@ -213,7 +214,7 @@ TEXT ·galMulAVX2XorParallel2(SB), 7, $0
 	TESTQ R9, R9
 	JZ    done_xor_avx2_parallel2
 
-	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULTABLE(low+0(FP), high+24(FP), XLO1, XHI1, LO1, HI1)
 	MULMASK
 
 	MOVQ out+72(FP), DX // DX: &out
@@ -224,10 +225,10 @@ loopback_xor_avx2_parallel2:
 	VMOVDQU (SI), Y0
 	VMOVDQU (DX), Y4
 
-	GFMULLXOR(Y0, LO, HI, Y4)
+	GFMULLXOR(Y0, LO1, HI1, Y4)
 
 	VMOVDQU (AX), Y0
-	GFMULLXOR(Y0, LO, HI, Y4)
+	GFMULLXOR(Y0, LO1, HI1, Y4)
 
 	VMOVDQU Y4, (DX)
 
@@ -248,7 +249,7 @@ TEXT ·galMulAVX2XorParallel22(SB), 7, $0
 	TESTQ R9, R9
 	JZ    done_xor_avx2_parallel22
 
-	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULTABLE(low+0(FP), high+24(FP), XLO1, XHI1, LO1, HI1)
 	MULTABLE(low2+144(FP), high2+168(FP), XLO2, XHI2, LO2, HI2)
 	MULMASK
 
@@ -264,8 +265,8 @@ loopback_xor_avx2_parallel22:
 	VMOVDQU (SI), Y0
 	VMOVDQU (AX), Y1
 
-	GFMULLXOR(Y0, LO, HI, Y4)
-	GFMULLXOR(Y1, LO, HI, Y4)
+	GFMULLXOR(Y0, LO1, HI1, Y4)
+	GFMULLXOR(Y1, LO1, HI1, Y4)
 
 	GFMULLXOR(Y0, LO2, HI2, Y5)
 	GFMULLXOR(Y1, LO2, HI2, Y5)
@@ -291,7 +292,7 @@ TEXT ·galMulAVX2XorParallel3(SB), 7, $0
 	TESTQ R9, R9
 	JZ    done_xor_avx2_parallel3
 
-	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULTABLE(low+0(FP), high+24(FP), XLO1, XHI1, LO1, HI1)
 	MULMASK
 
 	MOVQ out+72(FP), DX  // DX: &out
@@ -303,13 +304,13 @@ loopback_xor_avx2_parallel3:
 	VMOVDQU (SI), Y0
 	VMOVDQU (DX), Y4
 
-	GFMULLXOR(Y0, LO, HI, Y4)
+	GFMULLXOR(Y0, LO1, HI1, Y4)
 
 	VMOVDQU (AX), Y0
-	GFMULLXOR(Y0, LO, HI, Y4)
+	GFMULLXOR(Y0, LO1, HI1, Y4)
 
 	VMOVDQU (BX), Y0
-	GFMULLXOR(Y0, LO, HI, Y4)
+	GFMULLXOR(Y0, LO1, HI1, Y4)
 
 	VMOVDQU Y4, (DX)
 
@@ -331,7 +332,7 @@ TEXT ·galMulAVX2XorParallel33(SB), 7, $0
 	TESTQ R9, R9
 	JZ    done_xor_avx2_parallel33
 
-	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULTABLE(low+0(FP), high+24(FP), XLO1, XHI1, LO1, HI1)
 	MULTABLE(low2+168(FP), high2+192(FP), XLO2, XHI2, LO2, HI2)
 	MULTABLE(low3+216(FP), high3+240(FP), XLO3, XHI3, LO3, HI3)
 	MULMASK
@@ -353,9 +354,9 @@ loopback_xor_avx2_parallel33:
 	VMOVDQU (AX), Y1
 	VMOVDQU (BX), Y2
 
-	GFMULLXOR(Y0, LO, HI, Y4)
-	GFMULLXOR(Y1, LO, HI, Y4)
-	GFMULLXOR(Y2, LO, HI, Y4)
+	GFMULLXOR(Y0, LO1, HI1, Y4)
+	GFMULLXOR(Y1, LO1, HI1, Y4)
+	GFMULLXOR(Y2, LO1, HI1, Y4)
 
 	GFMULLXOR(Y0, LO2, HI2, Y5)
 	GFMULLXOR(Y1, LO2, HI2, Y5)
@@ -389,7 +390,7 @@ TEXT ·galMulAVX2XorParallel4(SB), 7, $0
 	TESTQ R9, R9
 	JZ    done_xor_avx2_parallel4
 
-	MULTABLE(low+0(FP), high+24(FP), XLO, XHI, LO, HI)
+	MULTABLE(low+0(FP), high+24(FP), XLO1, XHI1, LO1, HI1)
 	MULMASK
 
 	MOVQ out+72(FP), DX  // DX: &out
@@ -402,16 +403,16 @@ loopback_xor_avx2_parallel4:
 	VMOVDQU (SI), Y0
 	VMOVDQU (DX), Y4
 
-	GFMULLXOR(Y0, LO, HI, Y4)
+	GFMULLXOR(Y0, LO1, HI1, Y4)
 
 	VMOVDQU (AX), Y0
-	GFMULLXOR(Y0, LO, HI, Y4)
+	GFMULLXOR(Y0, LO1, HI1, Y4)
 
 	VMOVDQU (BX), Y0
-	GFMULLXOR(Y0, LO, HI, Y4)
+	GFMULLXOR(Y0, LO1, HI1, Y4)
 
 	VMOVDQU (CX), Y0
-	GFMULLXOR(Y0, LO, HI, Y4)
+	GFMULLXOR(Y0, LO1, HI1, Y4)
 
 	VMOVDQU Y4, (DX)
 
