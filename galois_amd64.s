@@ -100,13 +100,17 @@ done:
 #define XLO3 X8
 #define XHI3 X9
 
-#define GFMULL(ymm, lo, hi, res) \
+#define GFMULL(ymm, lo, hi) \
 	VPSRLQ  $4, ymm, TMP1    \ // TMP1: high input
 	VPAND   MASK, ymm, TMP0  \ // TMP0: low input
 	VPAND   MASK, TMP1, TMP1 \ // TMP1: high input
-	VPSHUFB TMP0, lo, TMP0   \ // Y2: mul low part
-	VPSHUFB TMP1, hi, TMP1   \ // Y3: mul high part
-	VPXOR   TMP0, TMP1, res  // Y3: Result
+	VPSHUFB TMP0, lo, TMP0   \ // TMP0: mul low part
+	VPSHUFB TMP1, hi, TMP1   \ // TMP1: mul high part
+	VPXOR   TMP0, TMP1, TMP0  // TMP0: Result
+
+#define GFMULLXOR(ymm, lo, hi, res) \
+    GFMULL(ymm, lo, hi) \
+ 	VPXOR   res, TMP0, res
 
 // func galMulAVX2Xor(low, high, in, out []byte)
 TEXT ·galMulAVX2Xor(SB), 7, $0
@@ -131,8 +135,7 @@ TEXT ·galMulAVX2Xor(SB), 7, $0
 loopback_xor_avx2:
 	VMOVDQU (SI), Y0
 	VMOVDQU (DX), Y4
-	GFMULL(Y0, LO, HI, Y3)
-	VPXOR   Y4, Y3, Y4 // Y4: Result
+	GFMULLXOR(Y0, LO, HI, Y4)
 	VMOVDQU Y4, (DX)
 
 	ADDQ $32, SI           // in+=32
@@ -166,8 +169,8 @@ TEXT ·galMulAVX2(SB), 7, $0
 
 loopback_avx2:
 	VMOVDQU (SI), Y0
-	GFMULL(Y0, LO, HI, Y3)
-	VMOVDQU Y3, (DX)
+	GFMULL(Y0, LO, HI)
+	VMOVDQU TMP0, (DX)
 
 	ADDQ $32, SI       // in+=32
 	ADDQ $32, DX       // out+=32
@@ -224,12 +227,11 @@ TEXT ·galMulAVX2XorParallel2(SB), 7, $0
 loopback_xor_avx2_parallel2:
 	VMOVDQU (SI), Y0
 	VMOVDQU (DX), Y4
-	GFMULL(Y0, LO, HI, Y3)
-	VPXOR   Y4, Y3, Y4 // Y4: Result
+
+	GFMULLXOR(Y0, LO, HI, Y4)
 
 	VMOVDQU (AX), Y0
-	GFMULL(Y0, LO, HI, Y3)
-	VPXOR   Y4, Y3, Y4 // Y4: Result
+	GFMULLXOR(Y0, LO, HI, Y4)
 
 	VMOVDQU Y4, (DX)
 
@@ -279,17 +281,11 @@ loopback_xor_avx2_parallel22:
 	VMOVDQU (SI), Y0
 	VMOVDQU (AX), Y1
 
-	GFMULL(Y0, LO, HI, Y3)
-	VPXOR Y4, Y3, Y4 // Y4: Result
+	GFMULLXOR(Y0, LO, HI, Y4)
+	GFMULLXOR(Y1, LO, HI, Y4)
 
-	GFMULL(Y1, LO, HI, Y3)
-	VPXOR Y4, Y3, Y4 // Y4: Result
-
-	GFMULL(Y0, LO2, HI2, Y3)
-	VPXOR Y5, Y3, Y5 // Y5: Result
-
-	GFMULL(Y1, LO2, HI2, Y3)
-	VPXOR Y5, Y3, Y5 // Y5: Result
+	GFMULLXOR(Y0, LO2, HI2, Y5)
+	GFMULLXOR(Y1, LO2, HI2, Y5)
 
 	VMOVDQU Y4, (DX)
 	VMOVDQU Y5, (BX)
@@ -330,16 +326,14 @@ TEXT ·galMulAVX2XorParallel3(SB), 7, $0
 loopback_xor_avx2_parallel3:
 	VMOVDQU (SI), Y0
 	VMOVDQU (DX), Y4
-	GFMULL(Y0, LO, HI, Y3)
-	VPXOR   Y4, Y3, Y4 // Y4: Result
+
+	GFMULLXOR(Y0, LO, HI, Y4)
 
 	VMOVDQU (AX), Y0
-	GFMULL(Y0, LO, HI, Y3)
-	VPXOR   Y4, Y3, Y4 // Y4: Result
+	GFMULLXOR(Y0, LO, HI, Y4)
 
 	VMOVDQU (BX), Y0
-	GFMULL(Y0, LO, HI, Y3)
-	VPXOR   Y4, Y3, Y4 // Y4: Result
+	GFMULLXOR(Y0, LO, HI, Y4)
 
 	VMOVDQU Y4, (DX)
 
@@ -402,32 +396,17 @@ loopback_xor_avx2_parallel33:
 	VMOVDQU (AX), Y1
 	VMOVDQU (BX), Y2
 
-	GFMULL(Y0, LO, HI, Y3)
-	VPXOR Y4, Y3, Y4 // Y4: Result
+	GFMULLXOR(Y0, LO, HI, Y4)
+	GFMULLXOR(Y1, LO, HI, Y4)
+	GFMULLXOR(Y2, LO, HI, Y4)
 
-	GFMULL(Y1, LO, HI, Y3)
-	VPXOR Y4, Y3, Y4 // Y4: Result
+	GFMULLXOR(Y0, LO2, HI2, Y5)
+	GFMULLXOR(Y1, LO2, HI2, Y5)
+	GFMULLXOR(Y2, LO2, HI2, Y5)
 
-	GFMULL(Y2, LO, HI, Y3)
-	VPXOR Y4, Y3, Y4 // Y4: Result
-
-	GFMULL(Y0, LO2, HI2, Y3)
-	VPXOR Y5, Y3, Y5 // Y5: Result
-
-	GFMULL(Y1, LO2, HI2, Y3)
-	VPXOR Y5, Y3, Y5 // Y5: Result
-
-	GFMULL(Y2, LO2, HI2, Y3)
-	VPXOR Y5, Y3, Y5 // Y5: Result
-
-	GFMULL(Y0, LO3, HI3, Y3)
-	VPXOR Y6, Y3, Y6 // Y6: Result
-
-	GFMULL(Y1, LO3, HI3, Y3)
-	VPXOR Y6, Y3, Y6 // Y6: Result
-
-	GFMULL(Y2, LO3, HI3, Y3)
-	VPXOR Y6, Y3, Y6 // Y6: Result
+	GFMULLXOR(Y0, LO3, HI3, Y6)
+	GFMULLXOR(Y1, LO3, HI3, Y6)
+	GFMULLXOR(Y2, LO3, HI3, Y6)
 
 	VMOVDQU Y4, (DX)
 	VMOVDQU Y5, (CX)
@@ -472,20 +451,17 @@ TEXT ·galMulAVX2XorParallel4(SB), 7, $0
 loopback_xor_avx2_parallel4:
 	VMOVDQU (SI), Y0
 	VMOVDQU (DX), Y4
-	GFMULL(Y0, LO, HI, Y3)
-	VPXOR   Y4, Y3, Y4 // Y4: Result
+
+	GFMULLXOR(Y0, LO, HI, Y4)
 
 	VMOVDQU (AX), Y0
-	GFMULL(Y0, LO, HI, Y3)
-	VPXOR   Y4, Y3, Y4 // Y4: Result
+	GFMULLXOR(Y0, LO, HI, Y4)
 
 	VMOVDQU (BX), Y0
-	GFMULL(Y0, LO, HI, Y3)
-	VPXOR   Y4, Y3, Y4 // Y4: Result
+	GFMULLXOR(Y0, LO, HI, Y4)
 
 	VMOVDQU (CX), Y0
-	GFMULL(Y0, LO, HI, Y3)
-	VPXOR   Y4, Y3, Y4 // Y4: Result
+	GFMULLXOR(Y0, LO, HI, Y4)
 
 	VMOVDQU Y4, (DX)
 
