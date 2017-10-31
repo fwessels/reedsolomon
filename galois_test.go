@@ -249,8 +249,8 @@ func benchmarkGaloisXor(b *testing.B, size int) {
 	}
 }
 
-func BenchmarkGaloisXor1M(b *testing.B) {
-	benchmarkGaloisXor(b, 1024*1024)
+func BenchmarkGaloisXor10M(b *testing.B) {
+	benchmarkGaloisXor(b, 10*1024*1024)
 }
 
 func benchmarkGaloisXorParallel2(b *testing.B, size int) {
@@ -268,8 +268,8 @@ func benchmarkGaloisXorParallel2(b *testing.B, size int) {
 	}
 }
 
-func BenchmarkGaloisXorParallel2_1M(b *testing.B) {
-	benchmarkGaloisXorParallel2(b, 1024*1024)
+func BenchmarkGaloisXorParallel2_10M(b *testing.B) {
+	benchmarkGaloisXorParallel2(b, 10*1024*1024)
 }
 
 func benchmarkGaloisXorParallel3(b *testing.B, size int) {
@@ -288,8 +288,8 @@ func benchmarkGaloisXorParallel3(b *testing.B, size int) {
 	}
 }
 
-func BenchmarkGaloisXorParallel3_1M(b *testing.B) {
-	benchmarkGaloisXorParallel3(b, 1024*1024)
+func BenchmarkGaloisXorParallel3_10M(b *testing.B) {
+	benchmarkGaloisXorParallel3(b, 10*1024*1024)
 }
 
 func benchmarkGaloisXorParallel4(b *testing.B, size int) {
@@ -309,8 +309,8 @@ func benchmarkGaloisXorParallel4(b *testing.B, size int) {
 	}
 }
 
-func BenchmarkGaloisXorParallel4_1M(b *testing.B) {
-	benchmarkGaloisXorParallel4(b, 1024*1024)
+func BenchmarkGaloisXorParallel4_10M(b *testing.B) {
+	benchmarkGaloisXorParallel4(b, 10*1024*1024)
 }
 
 func benchmarkGaloisXorParallel22(b *testing.B, size int) {
@@ -329,8 +329,8 @@ func benchmarkGaloisXorParallel22(b *testing.B, size int) {
 	}
 }
 
-func BenchmarkGaloisXorParallel22_1M(b *testing.B) {
-	benchmarkGaloisXorParallel22(b, 1024*1024)
+func BenchmarkGaloisXorParallel22_10M(b *testing.B) {
+	benchmarkGaloisXorParallel22(b, 10*1024*1024)
 }
 
 func benchmarkGaloisXorParallel33(b *testing.B, size int) {
@@ -351,8 +351,8 @@ func benchmarkGaloisXorParallel33(b *testing.B, size int) {
 	}
 }
 
-func BenchmarkGaloisXorParallel33_1M(b *testing.B) {
-	benchmarkGaloisXorParallel33(b, 1024*1024)
+func BenchmarkGaloisXorParallel33_10M(b *testing.B) {
+	benchmarkGaloisXorParallel33(b, 10*1024*1024)
 }
 
 func benchmarkGaloisXorParallel44(b *testing.B, size int) {
@@ -375,6 +375,6 @@ func benchmarkGaloisXorParallel44(b *testing.B, size int) {
 	}
 }
 
-func BenchmarkGaloisXorParallel44_1M(b *testing.B) {
-	benchmarkGaloisXorParallel44(b, 1024*1024)
+func BenchmarkGaloisXorParallel44_10M(b *testing.B) {
+	benchmarkGaloisXorParallel44(b, 10*1024*1024)
 }
