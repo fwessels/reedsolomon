@@ -451,7 +451,13 @@ TEXT ·galMulAVX2XorParallel44(SB), 7, $0
 	MULTABLE(low+0(FP), high+24(FP), XLO1, XHI1, LO1, HI1)
 	MULTABLE(low2+240(FP), high2+264(FP), XLO2, XHI2, LO2, HI2)
 	MULTABLE(low3+288(FP), high3+312(FP), XLO3, XHI3, LO3, HI3)
+
 	// MULTABLE(low4+336(FP), high4+360(FP), XLO4, XHI4, LO4, HI4)
+	MOVQ low4+336(FP), SI
+	MOVQ high4+360(FP), DX
+	LONG $0x48fde262; WORD $0x065a // VBROADCASTI64X2 ZMM16, [rsi]
+	LONG $0x48fde262; WORD $0x0a5a // VBROADCASTI64X2 ZMM17, [rdx]
+
 	MULMASK
 
 	MOVQ out+72(FP), DX    // DX: &out
@@ -472,7 +478,8 @@ loopback_xor_avx2_parallel44:
 	VMOVDQU (DX), Y4
 	VMOVDQU (CX), Y5
 	VMOVDQU (R10), Y6
-	// VMOVDQU (R12), Y18
+
+	LONG $0x28fec162; WORD $0x146f; BYTE $0x24 // VMOVDQU64 YMM18, [r12]
 
 	GFMULLXOR(Y0, LO1, HI1, Y4)
 	GFMULLXOR(Y1, LO1, HI1, Y4)
@@ -489,15 +496,47 @@ loopback_xor_avx2_parallel44:
 	GFMULLXOR(Y2, LO3, HI3, Y6)
 	GFMULLXOR(Y3, LO3, HI3, Y6)
 
-	GFMULLXOR(Y0, LO1/*4*/, HI1/*4*/, Y0)
-	GFMULLXOR(Y1, LO1/*4*/, HI1/*4*/, Y0)
-	GFMULLXOR(Y2, LO1/*4*/, HI1/*4*/, Y0)
-	GFMULLXOR(Y3, LO1/*4*/, HI1/*4*/, Y0)
+	// GFMULLXOR(Y0, LO4, HI4, Y18)
+	LONG $0x20ddf162; WORD $0xd073; BYTE $0x04 // VPSRLQ   YMM20, YMM0, 4     ; Z1: high input
+	LONG $0x28fdc162; WORD $0xd9db             // VPANDQ   YMM19, YMM0, YMM9  ; Z0: low input
+	LONG $0x20ddc162; WORD $0xe1db             // VPANDQ   YMM20, YMM20, YMM9  ; Z1: high input
+	LONG $0x207da262; WORD $0xdb00             // VPSHUFB  YMM19, YMM16, YMM19  ; Z2: mul low part
+	LONG $0x2075a262; WORD $0xe400             // VPSHUFB  YMM20, YMM17, YMM20  ; Z3: mul high part
+	LONG $0x20e5a162; WORD $0xdcef             // VPXORQ   YMM19, YMM19, YMM20  ; Z4: Result
+	LONG $0x20eda162; WORD $0xd3ef             // VPXORQ   YMM18, YMM18, YMM19
+
+	// GFMULLXOR(Y1, LO4, HI4, Y18)
+	LONG $0x20ddf162; WORD $0xd173; BYTE $0x04 // VPSRLQ   YMM20, YMM1, 4     ; Z1: high input
+	LONG $0x28f5c162; WORD $0xd9db             // VPANDQ   YMM19, YMM1, YMM9  ; Z0: low input
+	LONG $0x20ddc162; WORD $0xe1db             // VPANDQ   YMM20, YMM20, YMM9  ; Z1: high input
+	LONG $0x207da262; WORD $0xdb00             // VPSHUFB  YMM19, YMM16, YMM19  ; Z2: mul low part
+	LONG $0x2075a262; WORD $0xe400             // VPSHUFB  YMM20, YMM17, YMM20  ; Z3: mul high part
+	LONG $0x20e5a162; WORD $0xdcef             // VPXORQ   YMM19, YMM19, YMM20  ; Z4: Result
+	LONG $0x20eda162; WORD $0xd3ef             // VPXORQ   YMM18, YMM18, YMM19
+
+	// GFMULLXOR(Y2, LO4, HI4, Y18)
+	LONG $0x20ddf162; WORD $0xd273; BYTE $0x04 // VPSRLQ   YMM20, YMM2, 4     ; Z1: high input
+	LONG $0x28edc162; WORD $0xd9db             // VPANDQ   YMM19, YMM2, YMM9  ; Z0: low input
+	LONG $0x20ddc162; WORD $0xe1db             // VPANDQ   YMM20, YMM20, YMM9  ; Z1: high input
+	LONG $0x207da262; WORD $0xdb00             // VPSHUFB  YMM19, YMM16, YMM19  ; Z2: mul low part
+	LONG $0x2075a262; WORD $0xe400             // VPSHUFB  YMM20, YMM17, YMM20  ; Z3: mul high part
+	LONG $0x20e5a162; WORD $0xdcef             // VPXORQ   YMM19, YMM19, YMM20  ; Z4: Result
+	LONG $0x20eda162; WORD $0xd3ef             // VPXORQ   YMM18, YMM18, YMM19
+
+	// GFMULLXOR(Y3, LO4, HI4, Y18)
+	LONG $0x20ddf162; WORD $0xd373; BYTE $0x04 // VPSRLQ   YMM20, YMM3, 4     ; Z1: high input
+	LONG $0x28e5c162; WORD $0xd9db             // VPANDQ   YMM19, YMM3, YMM9  ; Z0: low input
+	LONG $0x20ddc162; WORD $0xe1db             // VPANDQ   YMM20, YMM20, YMM9  ; Z1: high input
+	LONG $0x207da262; WORD $0xdb00             // VPSHUFB  YMM19, YMM16, YMM19  ; Z2: mul low part
+	LONG $0x2075a262; WORD $0xe400             // VPSHUFB  YMM20, YMM17, YMM20  ; Z3: mul high part
+	LONG $0x20e5a162; WORD $0xdcef             // VPXORQ   YMM19, YMM19, YMM20  ; Z4: Result
+	LONG $0x20eda162; WORD $0xd3ef             // VPXORQ   YMM18, YMM18, YMM19
 
 	VMOVDQU Y4, (DX)
 	VMOVDQU Y5, (CX)
 	VMOVDQU Y6, (R10)
-	// VMOVDQU Y18, (R12)
+
+	LONG $0x28fec162; WORD $0x147f; BYTE $0x24 // VMOVDQU64 [r12], YMM18
 
 	ADDQ $32, SI  // in+=32
 	ADDQ $32, AX  // in2+=32
