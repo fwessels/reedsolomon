@@ -603,20 +603,8 @@ TEXT ·galMulAVX512XorParallel44(SB), 7, $0
 loopback_xor_avx512_parallel44:
 	// VMOVDQU (SI), Y0
     LONG $0x48fef162; WORD $0x066f // VMOVDQU64 ZMM0, [rsi]
-	VMOVDQU (AX), Y1
-    LONG $0x48fef162; WORD $0x086f // VMOVDQU64 ZMM1, [rax]
-	VMOVDQU (BX), Y2
-    LONG $0x48fef162; WORD $0x136f // VMOVDQU64 ZMM2, [rbx]
-	VMOVDQU (R11), Y3
-    LONG $0x48fed162; WORD $0x1b6f // VMOVDQU64 ZMM3, [r11]
-
 	// VMOVDQU (DX), Y4
     LONG $0x48fef162; WORD $0x226f // VMOVDQU64 ZMM4, [rdx]
-	// VMOVDQU (CX), Y5
-    LONG $0x48fef162; WORD $0x296f // VMOVDQU64 ZMM5, [rcx]
-	// VMOVDQU (R10), Y6
-    LONG $0x48fed162; WORD $0x326f // VMOVDQU64 ZMM6, [r10]
-    LONG $0x48fec162; WORD $0x146f; BYTE $0x24 // VMOVDQU64 ZMM18, [r12]
 
 	// GFMULLXOR(Y0, LO1, HI1, Y4)
     LONG $0x40ddf162; WORD $0xd073; BYTE $0x04 // VPSRLQ   ZMM20, ZMM0, 4     ; Z1: high input
@@ -627,6 +615,9 @@ loopback_xor_avx512_parallel44:
     LONG $0x40e5a162; WORD $0xdcef // VPXORQ   ZMM19, ZMM19, ZMM20  ; Z4: Result
     LONG $0x48ddb162; WORD $0xe3ef // VPXORQ   ZMM4, ZMM4, ZMM19
 
+	VMOVDQU (AX), Y1
+    LONG $0x48fef162; WORD $0x086f // VMOVDQU64 ZMM1, [rax]
+
 	// GFMULLXOR(Y1, LO1, HI1, Y4)
     LONG $0x40ddf162; WORD $0xd173; BYTE $0x04 // VPSRLQ   ZMM20, ZMM1, 4     ; Z1: high input
     LONG $0x48f5c162; WORD $0xd9db // VPANDQ   ZMM19, ZMM1, ZMM9  ; Z0: low input
@@ -635,6 +626,9 @@ loopback_xor_avx512_parallel44:
     LONG $0x4805a262; WORD $0xe400 // VPSHUFB  ZMM20, ZMM15, ZMM20  ; Z3: mul high part
     LONG $0x40e5a162; WORD $0xdcef // VPXORQ   ZMM19, ZMM19, ZMM20  ; Z4: Result
     LONG $0x48ddb162; WORD $0xe3ef // VPXORQ   ZMM4, ZMM4, ZMM19
+
+	VMOVDQU (BX), Y2
+    LONG $0x48fef162; WORD $0x136f // VMOVDQU64 ZMM2, [rbx]
 
 	// GFMULLXOR(Y2, LO1, HI1, Y4)
     LONG $0x40ddf162; WORD $0xd273; BYTE $0x04 // VPSRLQ   ZMM20, ZMM2, 4     ; Z1: high input
@@ -645,6 +639,9 @@ loopback_xor_avx512_parallel44:
     LONG $0x40e5a162; WORD $0xdcef // VPXORQ   ZMM19, ZMM19, ZMM20  ; Z4: Result
     LONG $0x48ddb162; WORD $0xe3ef // VPXORQ   ZMM4, ZMM4, ZMM19
 
+	VMOVDQU (R11), Y3
+    LONG $0x48fed162; WORD $0x1b6f // VMOVDQU64 ZMM3, [r11]
+
 	// GFMULLXOR(Y3, LO1, HI1, Y4)
     LONG $0x40ddf162; WORD $0xd373; BYTE $0x04 // VPSRLQ   ZMM20, ZMM3, 4     ; Z1: high input
     LONG $0x48e5c162; WORD $0xd9db // VPANDQ   ZMM19, ZMM3, ZMM9  ; Z0: low input
@@ -654,6 +651,9 @@ loopback_xor_avx512_parallel44:
     LONG $0x40e5a162; WORD $0xdcef // VPXORQ   ZMM19, ZMM19, ZMM20  ; Z4: Result
     LONG $0x48ddb162; WORD $0xe3ef // VPXORQ   ZMM4, ZMM4, ZMM19
 
+	// VMOVDQU (CX), Y5
+    LONG $0x48fef162; WORD $0x296f // VMOVDQU64 ZMM5, [rcx]
+
 	// GFMULLXOR(Y0, LO2, HI2, Y5)
     LONG $0x40ddf162; WORD $0xd073; BYTE $0x04 // VPSRLQ   ZMM20, ZMM0, 4     ; Z1: high input
     LONG $0x48fdc162; WORD $0xd9db // VPANDQ   ZMM19, ZMM0, ZMM9  ; Z0: low input
@@ -662,6 +662,9 @@ loopback_xor_avx512_parallel44:
     LONG $0x4815a262; WORD $0xe400 // VPSHUFB  ZMM20, ZMM13, ZMM20  ; Z3: mul high part
     LONG $0x40e5a162; WORD $0xdcef // VPXORQ   ZMM19, ZMM19, ZMM20  ; Z4: Result
     LONG $0x48d5b162; WORD $0xebef // VPXORQ   ZMM5, ZMM5, ZMM19
+
+	// VMOVDQU Y4, (DX)
+    LONG $0x48fef162; WORD $0x227f // VMOVDQU64 [rdx], ZMM4
 
 	// GFMULLXOR(Y1, LO2, HI2, Y5)
     LONG $0x40ddf162; WORD $0xd173; BYTE $0x04 // VPSRLQ   ZMM20, ZMM1, 4     ; Z1: high input
@@ -690,6 +693,9 @@ loopback_xor_avx512_parallel44:
     LONG $0x40e5a162; WORD $0xdcef // VPXORQ   ZMM19, ZMM19, ZMM20  ; Z4: Result
     LONG $0x48d5b162; WORD $0xebef // VPXORQ   ZMM5, ZMM5, ZMM19
 
+	// VMOVDQU (R10), Y6
+    LONG $0x48fed162; WORD $0x326f // VMOVDQU64 ZMM6, [r10]
+
 	// GFMULLXOR(Y0, LO3, HI3, Y6)
     LONG $0x40ddf162; WORD $0xd073; BYTE $0x04 // VPSRLQ   ZMM20, ZMM0, 4     ; Z1: high input
     LONG $0x48fdc162; WORD $0xd9db // VPANDQ   ZMM19, ZMM0, ZMM9  ; Z0: low input
@@ -698,6 +704,9 @@ loopback_xor_avx512_parallel44:
     LONG $0x4825a262; WORD $0xe400 // VPSHUFB  ZMM20, ZMM11, ZMM20  ; Z3: mul high part
     LONG $0x40e5a162; WORD $0xdcef // VPXORQ   ZMM19, ZMM19, ZMM20  ; Z4: Result
     LONG $0x48cdb162; WORD $0xf3ef // VPXORQ   ZMM6, ZMM6, ZMM19
+
+	// VMOVDQU Y5, (CX)
+   LONG $0x48fef162; WORD $0x297f // VMOVDQU64 [rcx], ZMM5
 
 	// GFMULLXOR(Y1, LO3, HI3, Y6)
     LONG $0x40ddf162; WORD $0xd173; BYTE $0x04 // VPSRLQ   ZMM20, ZMM1, 4     ; Z1: high input
@@ -726,6 +735,8 @@ loopback_xor_avx512_parallel44:
     LONG $0x40e5a162; WORD $0xdcef // VPXORQ   ZMM19, ZMM19, ZMM20  ; Z4: Result
     LONG $0x48cdb162; WORD $0xf3ef // VPXORQ   ZMM6, ZMM6, ZMM19
 
+    LONG $0x48fec162; WORD $0x146f; BYTE $0x24 // VMOVDQU64 ZMM18, [r12]
+
 	// GFMULLXOR(Y0, LO4, HI4, Y18)
     LONG $0x40ddf162; WORD $0xd073; BYTE $0x04 // VPSRLQ   ZMM20, ZMM0, 4     ; Z1: high input
     LONG $0x48fdc162; WORD $0xd9db // VPANDQ   ZMM19, ZMM0, ZMM9  ; Z0: low input
@@ -734,6 +745,9 @@ loopback_xor_avx512_parallel44:
     LONG $0x4075a262; WORD $0xe400 // VPSHUFB  ZMM20, ZMM17, ZMM20  ; Z3: mul high part
     LONG $0x40e5a162; WORD $0xdcef // VPXORQ   ZMM19, ZMM19, ZMM20  ; Z4: Result
     LONG $0x40eda162; WORD $0xd3ef // VPXORQ   ZMM18, ZMM18, ZMM19
+
+	// VMOVDQU Y6, (R10)
+    LONG $0x48fed162; WORD $0x327f // VMOVDQU64 [r10], ZMM6
 
 	// GFMULLXOR(Y1, LO4, HI4, Y18)
     LONG $0x40ddf162; WORD $0xd173; BYTE $0x04 // VPSRLQ   ZMM20, ZMM1, 4     ; Z1: high input
@@ -761,13 +775,6 @@ loopback_xor_avx512_parallel44:
     LONG $0x4075a262; WORD $0xe400 // VPSHUFB  ZMM20, ZMM17, ZMM20  ; Z3: mul high part
     LONG $0x40e5a162; WORD $0xdcef // VPXORQ   ZMM19, ZMM19, ZMM20  ; Z4: Result
     LONG $0x40eda162; WORD $0xd3ef // VPXORQ   ZMM18, ZMM18, ZMM19
-
-	// VMOVDQU Y4, (DX)
-    LONG $0x48fef162; WORD $0x227f // VMOVDQU64 [rdx], ZMM4
-	// VMOVDQU Y5, (CX)
-   LONG $0x48fef162; WORD $0x297f // VMOVDQU64 [rcx], ZMM5
-	// VMOVDQU Y6, (R10)
-    LONG $0x48fed162; WORD $0x327f // VMOVDQU64 [r10], ZMM6
 
     LONG $0x48fec162; WORD $0x147f; BYTE $0x24 // VMOVDQU64 [r12], ZMM18
 
