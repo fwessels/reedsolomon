@@ -754,3 +754,35 @@ loopback_xor_avx512_parallel44:
 done_xor_avx512_parallel44:
 	VZEROUPPER
 	RET
+
+// func galMulAVX512Parallel84(in, out [][]byte, matrix []byte, clear bool) (done int64)
+//                              0   24           48             72           80
+TEXT ·galMulAVX512Parallel84(SB), 7, $0
+ 	MOVQ in+0(FP), SI      // SI: &in
+ 	MOVQ in_len+8(FP), AX // len(in)
+    MOVQ 8(SI), AX // len(in[0])
+    MOVQ 32(SI), AX // len(in[1])
+    MOVQ 56(SI), AX // len(in[2])
+    MOVQ 80(SI), AX // len(in[3])
+    MOVQ 104(SI), AX // len(in[4])
+    MOVQ 128(SI), AX // len(in[5])
+    MOVQ 152(SI), AX // len(in[6])
+    MOVQ 176(SI), AX // len(in[7])
+
+	MOVQ out+24(FP), DX    // DX: &out
+ 	MOVQ out_len+32(FP), BX // len(out)
+    MOVQ 8(DX), BX // len(out[0])
+    MOVQ 32(DX), BX // len(out[1])
+    MOVQ 56(DX), BX // len(out[2])
+    MOVQ 80(DX), BX // len(out[3])
+
+
+	                 // VMOVDQU64 ZMM0, [rsi]
+	                 // VPXORQ   ZMM3, ZMM3, ZMM3
+	                 // VPERMQ ZMM4, ZMM0, ZMM#
+	                 // VMOVDQU64 [rdx], ZMM4
+
+
+    MOVQ BX, done+80(FP)
+	VZEROUPPER
+	RET

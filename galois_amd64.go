@@ -41,6 +41,9 @@ func galMulAVX2XorParallel44(low, high, in, out, in2, in3, in4, out2, out3, out4
 //go:noescape
 func galMulAVX512XorParallel44(low, high, in, out, in2, in3, in4, out2, out3, out4, low2, high2, low3, high3, low4, high4 []byte)
 
+//go:noescape
+func galMulAVX512Parallel84(in, out [][]byte, matrix []byte, clear bool) (result int64)
+
 // This is what the assembler routines do in blocks of 16 bytes:
 /*
 func galMulSSSE3(low, high, in, out []byte) {
@@ -190,7 +193,7 @@ func galMulSliceXor512Parallel44(c, c2, c3, c4 byte, in, out, in2, out2, in3, ou
 	var done int
 	if avx2 {
 		galMulAVX512XorParallel44(mulTableLow[c][:], mulTableHigh[c][:], in, out, in2, in3, in4, out2, out3, out4, mulTableLow[c2][:], mulTableHigh[c2][:], mulTableLow[c3][:], mulTableHigh[c3][:], mulTableLow[c4][:], mulTableHigh[c4][:])
-		done = (len(in) >> 5) << 5
+		done = (len(in) >> 6) << 6
 	}
 	remain := len(in) - done
 	if remain > 0 {
@@ -199,6 +202,22 @@ func galMulSliceXor512Parallel44(c, c2, c3, c4 byte, in, out, in2, out2, in3, ou
 			out[i] ^= mt[in[i]]
 		}
 	}
+}
+
+func galMulSlice512Parallel84(in, out [][]byte, matrix []byte, ssse3, avx2 bool) {
+	//var done int
+	if avx2 {
+		galMulAVX512Parallel84(in, out, matrix, false)
+		_ /*done*/ = (len(in[0]) >> 6) << 6
+	}
+
+	//remain := len(in) - done
+	//if remain > 0 {
+	//	mt := mulTable[c]
+	//	for i := done; i < len(in); i++ {
+	//		out[i] ^= mt[in[i]]
+	//	}
+	//}
 }
 
 // slice galois add

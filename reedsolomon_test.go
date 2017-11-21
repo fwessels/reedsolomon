@@ -669,7 +669,8 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
 		fillRandom(shards[s])
 	}
 
-	b.SetBytes(int64(shardSize * dataShards))
+	// Wouldn't you be interested into how much **encoded** data you generate?
+	b.SetBytes(int64(shardSize * /*dataShards*/parityShards))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		err = r.Encode(shards)

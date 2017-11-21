@@ -15,7 +15,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"sync"
+	_ "sync"
 )
 
 // Encoder is an interface to encode Reed-Salomon parity sets for your data.
@@ -328,10 +328,10 @@ func (r reedSolomon) Update(shards [][]byte, newDatashards [][]byte) error {
 }
 
 func (r reedSolomon) updateParityShards(matrixRows, oldinputs, newinputs, outputs [][]byte, outputCount, byteCount int) {
-	if r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize {
-		r.updateParityShardsP(matrixRows, oldinputs, newinputs, outputs, outputCount, byteCount)
-		return
-	}
+	//if r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize {
+	//	r.updateParityShardsP(matrixRows, oldinputs, newinputs, outputs, outputCount, byteCount)
+	//	return
+	//}
 
 	for c := 0; c < r.DataShards; c++ {
 		in := newinputs[c]
@@ -339,14 +339,14 @@ func (r reedSolomon) updateParityShards(matrixRows, oldinputs, newinputs, output
 			continue
 		}
 		oldin := oldinputs[c]
-		// oldinputs data will be change
+		// old inputs data will be changed
 		sliceXor(in, oldin, r.o.useSSE2)
 		for iRow := 0; iRow < outputCount; iRow++ {
 			galMulSliceXor(matrixRows[iRow][c], oldin, outputs[iRow], r.o.useSSSE3, r.o.useAVX2)
 		}
 	}
 }
-
+/*
 func (r reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outputs [][]byte, outputCount, byteCount int) {
 	var wg sync.WaitGroup
 	do := byteCount / r.o.maxGoroutines
@@ -378,7 +378,7 @@ func (r reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outpu
 	}
 	wg.Wait()
 }
-
+*/
 // Verify returns true if the parity shards contain the right data.
 // The data is the same format as Encode. No data is modified.
 func (r reedSolomon) Verify(shards [][]byte) (bool, error) {
@@ -475,6 +475,9 @@ func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, output
 		in := inputs[c]
 		for iRow := 0; iRow < outputCount; iRow++ {
 			if c == 0 {
+				//
+				// Make sure we do first invocation will NULLing out the output
+				//
 				galMulSlice(matrixRows[iRow][c], in, outputs[iRow], r.o.useSSSE3, r.o.useAVX2)
 			} else {
 				galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow], r.o.useSSSE3, r.o.useAVX2)
@@ -482,7 +485,7 @@ func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, output
 		}
 	}
 }
-
+/*
 // Perform the same as codeSomeShards, but split the workload into
 // several goroutines.
 func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
@@ -514,14 +517,14 @@ func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outpu
 	}
 	wg.Wait()
 }
-
+*/
 // checkSomeShards is mostly the same as codeSomeShards,
 // except this will check values and return
 // as soon as a difference is found.
 func (r reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outputCount, byteCount int) bool {
-	if r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize {
-		return r.checkSomeShardsP(matrixRows, inputs, toCheck, outputCount, byteCount)
-	}
+	//if r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize {
+	//	return r.checkSomeShardsP(matrixRows, inputs, toCheck, outputCount, byteCount)
+	//}
 	outputs := make([][]byte, len(toCheck))
 	for i := range outputs {
 		outputs[i] = make([]byte, byteCount)
@@ -541,6 +544,7 @@ func (r reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outpu
 	return true
 }
 
+/*
 func (r reedSolomon) checkSomeShardsP(matrixRows, inputs, toCheck [][]byte, outputCount, byteCount int) bool {
 	same := true
 	var mu sync.RWMutex // For above
@@ -589,6 +593,7 @@ func (r reedSolomon) checkSomeShardsP(matrixRows, inputs, toCheck [][]byte, outp
 	wg.Wait()
 	return same
 }
+*/
 
 // ErrShardNoData will be returned if there are no shards,
 // or if the length of all shards is zero.

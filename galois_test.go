@@ -10,6 +10,7 @@ package reedsolomon
 import (
 	"bytes"
 	"testing"
+	"fmt"
 )
 
 func TestAssociativity(t *testing.T) {
@@ -397,6 +398,35 @@ func benchmarkGaloisXor512Parallel44(b *testing.B, size int) {
 	for i := 0; i < b.N; i++ {
 		galMulSliceXor512Parallel44(177, 25, 87, 111, in[:], out[:], in2[:], out2[:], in3[:], out3[:], in4[:], out4[:], false, true)
 	}
+}
+
+func TestGaloisAvx512Parallel84(t *testing.T) {
+	//size := 1024*1024
+	in1 := make([]byte, 1 /*size*/)
+	in2 := make([]byte, 2 /*size*/)
+	in3 := make([]byte, 3 /*size*/)
+	in4 := make([]byte, 4 /*size*/)
+	in5 := make([]byte, 5 /*size*/)
+	in6 := make([]byte, 6 /*size*/)
+	in7 := make([]byte, 7 /*size*/)
+	in8 := make([]byte, 8 /*size*/)
+	out1 := make([]byte, 9) //size)
+	out2 := make([]byte, 10) //size)
+	out3 := make([]byte, 11) //size)
+	out4 := make([]byte, 12) //size)
+
+	opts := defaultOptions
+	opts.useSSSE3 = true
+
+	in := make([][]byte, 8)
+	in[0], in[1], in[2], in[3], in[4], in[5], in[6], in[7] = in1, in2, in3, in4, in5, in6, in7, in8
+	out := make([][]byte, 4)
+	out[0], out[1], out[2], out[3] = out1, out2, out3, out4
+
+	matrix := make([]byte, (16+16)*8*4)
+
+	a := galMulAVX512Parallel84(in, out, matrix, false)
+	fmt.Println(a)
 }
 
 func BenchmarkGaloisXor512Parallel44_10M(b *testing.B) {
