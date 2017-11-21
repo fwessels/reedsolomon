@@ -1,0 +1,14 @@
+goos: darwin
+goarch: amd64
+pkg: github.com/klauspost/reedsolomon
+BenchmarkEncode10x2x10000-8     	  300000	      5069 ns/op	19727.53 MB/s
+BenchmarkEncode100x20x10000-8   	    3000	    474958 ns/op	2105.45 MB/s
+BenchmarkEncode17x3x1M-8        	    1000	   1517269 ns/op	11748.60 MB/s
+BenchmarkEncode10x4x16M-8       	      50	  35851421 ns/op	4679.65 MB/s
+BenchmarkEncode5x2x1M-8         	    5000	    295363 ns/op	17750.61 MB/s
+BenchmarkEncode10x2x1M-8        	    2000	    579470 ns/op	18095.42 MB/s
+BenchmarkEncode10x4x1M-8        	    1000	   1233463 ns/op	8501.07 MB/s
+BenchmarkEncode50x20x1M-8       	      50	  35004582 ns/op	1497.77 MB/s
+BenchmarkEncode17x3x16M-8       	      30	  40457485 ns/op	7049.69 MB/s
+PASS
+ok  	github.com/klauspost/reedsolomon	17.704s

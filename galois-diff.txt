@@ -1,0 +1,316 @@
+TEXT ·galMulAVX512Parallel66(SB), 7, $0
+	MOVQ in+0(FP), SI
+	MOVQ 8(SI), R9
+	SHRQ $6, R9
+	TESTQ R9, R9
+	JZ done_avx512_parallel66
+	MOVQ matrix+48(FP), SI
+	vmovdqu64 zmm14, 0x000[rsi]
+	vmovdqu64 zmm15, 0x040[rsi]
+	vmovdqu64 zmm16, 0x080[rsi]
+	vmovdqu64 zmm17, 0x0c0[rsi]
+	vmovdqu64 zmm18, 0x100[rsi]
+	vmovdqu64 zmm19, 0x140[rsi]
+	vmovdqu64 zmm20, 0x180[rsi]
+	vmovdqu64 zmm21, 0x1c0[rsi]
+	vmovdqu64 zmm22, 0x200[rsi]
+	vmovdqu64 zmm23, 0x240[rsi]
+	vmovdqu64 zmm24, 0x280[rsi]
+	vmovdqu64 zmm25, 0x2c0[rsi]
+	vmovdqu64 zmm26, 0x300[rsi]
+	vmovdqu64 zmm27, 0x340[rsi]
+	vmovdqu64 zmm28, 0x380[rsi]
+	vmovdqu64 zmm29, 0x3c0[rsi]
+	vmovdqu64 zmm30, 0x400[rsi]
+	vmovdqu64 zmm31, 0x440[rsi]
+	MOVQ $15, BX
+	MOVQ BX, X5
+	vpbroadcastb zmm2, xmm5
+	MOVB xor+72(FP), AX
+	mov r8, -1
+	mul r8
+	kmovq k1, rax
+	MOVQ in+0(FP), SI
+	MOVQ 24(SI), AX
+	MOVQ 48(SI), BX
+	MOVQ 72(SI), R11
+	MOVQ 96(SI), R13
+	MOVQ 120(SI), R14
+	MOVQ (SI), SI
+	MOVQ out+24(FP), DX
+	MOVQ 24(DX), CX
+	MOVQ 48(DX), R10
+	MOVQ 72(DX), R12
+	MOVQ 96(DX), R15
+	MOVQ 120(DX), R8
+	MOVQ (DX), DX
+loopback_avx512_parallel66:
+	vmovdqu64 zmm4{k1}{z}, [rdx]
+	vmovdqu64 zmm5{k1}{z}, [rcx]
+	vmovdqu64 zmm6{k1}{z}, [r10]
+	vmovdqu64 zmm7{k1}{z}, [r12]
+	vmovdqu64 zmm8{k1}{z}, [r15]
+	vmovdqu64 zmm9{k1}{z}, [r8]
+	vmovdqu64 zmm0, [rsi]
+	vshufi64x2 zmm10, zmm14, zmm14, 0x00
+	vshufi64x2 zmm11, zmm14, zmm14, 0x55
+	vpsrlq zmm1, zmm0, 4
+	vpandq zmm0, zmm0, zmm2
+	vpandq zmm1, zmm1, zmm2
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm4, zmm4, zmm10
+	vshufi64x2 zmm10, zmm17, zmm17, 0x00
+	vshufi64x2 zmm11, zmm17, zmm17, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm5, zmm5, zmm10
+	vshufi64x2 zmm10, zmm20, zmm20, 0x00
+	vshufi64x2 zmm11, zmm20, zmm20, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm6, zmm6, zmm10
+	vshufi64x2 zmm10, zmm23, zmm23, 0x00
+	vshufi64x2 zmm11, zmm23, zmm23, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm7, zmm7, zmm10
+	vshufi64x2 zmm10, zmm26, zmm26, 0x00
+	vshufi64x2 zmm11, zmm26, zmm26, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm8, zmm8, zmm10
+	vshufi64x2 zmm10, zmm29, zmm29, 0x00
+	vshufi64x2 zmm11, zmm29, zmm29, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm9, zmm9, zmm10
+	vmovdqu64 zmm0, [rax]
+	vshufi64x2 zmm10, zmm14, zmm14, 0xaa
+	vshufi64x2 zmm11, zmm14, zmm14, 0xff
+	vpsrlq zmm1, zmm0, 4
+	vpandq zmm0, zmm0, zmm2
+	vpandq zmm1, zmm1, zmm2
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm4, zmm4, zmm10
+	vshufi64x2 zmm10, zmm17, zmm17, 0xaa
+	vshufi64x2 zmm11, zmm17, zmm17, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm5, zmm5, zmm10
+	vshufi64x2 zmm10, zmm20, zmm20, 0xaa
+	vshufi64x2 zmm11, zmm20, zmm20, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm6, zmm6, zmm10
+	vshufi64x2 zmm10, zmm23, zmm23, 0xaa
+	vshufi64x2 zmm11, zmm23, zmm23, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm7, zmm7, zmm10
+	vshufi64x2 zmm10, zmm26, zmm26, 0xaa
+	vshufi64x2 zmm11, zmm26, zmm26, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm8, zmm8, zmm10
+	vshufi64x2 zmm10, zmm29, zmm29, 0xaa
+	vshufi64x2 zmm11, zmm29, zmm29, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm9, zmm9, zmm10
+	vmovdqu64 zmm0, [rbx]
+	vshufi64x2 zmm10, zmm15, zmm15, 0x00
+	vshufi64x2 zmm11, zmm15, zmm15, 0x55
+	vpsrlq zmm1, zmm0, 4
+	vpandq zmm0, zmm0, zmm2
+	vpandq zmm1, zmm1, zmm2
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm4, zmm4, zmm10
+	vshufi64x2 zmm10, zmm18, zmm18, 0x00
+	vshufi64x2 zmm11, zmm18, zmm18, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm5, zmm5, zmm10
+	vshufi64x2 zmm10, zmm21, zmm21, 0x00
+	vshufi64x2 zmm11, zmm21, zmm21, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm6, zmm6, zmm10
+	vshufi64x2 zmm10, zmm24, zmm24, 0x00
+	vshufi64x2 zmm11, zmm24, zmm24, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm7, zmm7, zmm10
+	vshufi64x2 zmm10, zmm27, zmm27, 0x00
+	vshufi64x2 zmm11, zmm27, zmm27, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm8, zmm8, zmm10
+	vshufi64x2 zmm10, zmm30, zmm30, 0x00
+	vshufi64x2 zmm11, zmm30, zmm30, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm9, zmm9, zmm10
+	vmovdqu64 zmm0, [r11]
+	vshufi64x2 zmm10, zmm15, zmm15, 0xaa
+	vshufi64x2 zmm11, zmm15, zmm15, 0xff
+	vpsrlq zmm1, zmm0, 4
+	vpandq zmm0, zmm0, zmm2
+	vpandq zmm1, zmm1, zmm2
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm4, zmm4, zmm10
+	vshufi64x2 zmm10, zmm18, zmm18, 0xaa
+	vshufi64x2 zmm11, zmm18, zmm18, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm5, zmm5, zmm10
+	vshufi64x2 zmm10, zmm21, zmm21, 0xaa
+	vshufi64x2 zmm11, zmm21, zmm21, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm6, zmm6, zmm10
+	vshufi64x2 zmm10, zmm24, zmm24, 0xaa
+	vshufi64x2 zmm11, zmm24, zmm24, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm7, zmm7, zmm10
+	vshufi64x2 zmm10, zmm27, zmm27, 0xaa
+	vshufi64x2 zmm11, zmm27, zmm27, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm8, zmm8, zmm10
+	vshufi64x2 zmm10, zmm30, zmm30, 0xaa
+	vshufi64x2 zmm11, zmm30, zmm30, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm9, zmm9, zmm10
+	vmovdqu64 zmm0, [r13]
+	vshufi64x2 zmm10, zmm16, zmm16, 0x00
+	vshufi64x2 zmm11, zmm16, zmm16, 0x55
+	vpsrlq zmm1, zmm0, 4
+	vpandq zmm0, zmm0, zmm2
+	vpandq zmm1, zmm1, zmm2
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm4, zmm4, zmm10
+	vshufi64x2 zmm10, zmm19, zmm19, 0x00
+	vshufi64x2 zmm11, zmm19, zmm19, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm5, zmm5, zmm10
+	vshufi64x2 zmm10, zmm22, zmm22, 0x00
+	vshufi64x2 zmm11, zmm22, zmm22, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm6, zmm6, zmm10
+	vshufi64x2 zmm10, zmm25, zmm25, 0x00
+	vshufi64x2 zmm11, zmm25, zmm25, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm7, zmm7, zmm10
+	vshufi64x2 zmm10, zmm28, zmm28, 0x00
+	vshufi64x2 zmm11, zmm28, zmm28, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm8, zmm8, zmm10
+	vshufi64x2 zmm10, zmm31, zmm31, 0x00
+	vshufi64x2 zmm11, zmm31, zmm31, 0x55
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm9, zmm9, zmm10
+	vmovdqu64 zmm0, [r14]
+	vshufi64x2 zmm10, zmm16, zmm16, 0xaa
+	vshufi64x2 zmm11, zmm16, zmm16, 0xff
+	vpsrlq zmm1, zmm0, 4
+	vpandq zmm0, zmm0, zmm2
+	vpandq zmm1, zmm1, zmm2
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm4, zmm4, zmm10
+	vshufi64x2 zmm10, zmm19, zmm19, 0xaa
+	vshufi64x2 zmm11, zmm19, zmm19, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm5, zmm5, zmm10
+	vshufi64x2 zmm10, zmm22, zmm22, 0xaa
+	vshufi64x2 zmm11, zmm22, zmm22, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm6, zmm6, zmm10
+	vshufi64x2 zmm10, zmm25, zmm25, 0xaa
+	vshufi64x2 zmm11, zmm25, zmm25, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm7, zmm7, zmm10
+	vshufi64x2 zmm10, zmm28, zmm28, 0xaa
+	vshufi64x2 zmm11, zmm28, zmm28, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm8, zmm8, zmm10
+	vshufi64x2 zmm10, zmm31, zmm31, 0xaa
+	vshufi64x2 zmm11, zmm31, zmm31, 0xff
+	vpshufb zmm10, zmm10, zmm0
+	vpshufb zmm11, zmm11, zmm1
+	vpxorq zmm10, zmm10, zmm11
+	vpxorq zmm9, zmm9, zmm10
+	vmovdqu64 [rdx], zmm4
+	vmovdqu64 [rcx], zmm5
+	vmovdqu64 [r10], zmm6
+	vmovdqu64 [r12], zmm7
+	vmovdqu64 [r15], zmm8
+	vmovdqu64 [r8], zmm9
+	ADDQ $64, SI
+	ADDQ $64, AX
+	ADDQ $64, BX
+	ADDQ $64, DX
+	ADDQ $64, CX
+	ADDQ $64, R10
+	ADDQ $64, R11
+	ADDQ $64, R12
+	ADDQ $64, R13
+	ADDQ $64, R14
+	ADDQ $64, R15
+	ADDQ $64, R8
+	SUBQ $1, R9
+	JNZ loopback_avx512_parallel66
+done_avx512_parallel66:
+	VZEROUPPER
+	RET

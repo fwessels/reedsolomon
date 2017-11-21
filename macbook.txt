@@ -1,0 +1,7 @@
+BenchmarkGaloisXor1M-8              	   30000	     43653 ns/op	24020.43 MB/s
+BenchmarkGaloisXorParallel2_1M-8    	   20000	     67256 ns/op	31181.32 MB/s
+BenchmarkGaloisXorParallel3_1M-8    	   20000	     89850 ns/op	35010.65 MB/s
+BenchmarkGaloisXorParallel4_1M-8    	   10000	    123498 ns/op	33962.36 MB/s
+BenchmarkGaloisXorParallel22_1M-8   	   10000	    104266 ns/op	40226.60 MB/s
+BenchmarkGaloisXorParallel33_1M-8   	   10000	    202345 ns/op	46638.90 MB/s
+

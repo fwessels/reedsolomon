@@ -1,0 +1,6 @@
+BenchmarkGaloisXor1M-4                     20000             88638 ns/op        11829.77 MB/s
+BenchmarkGaloisXorParallel2_1M-4           10000            134693 ns/op        15569.80 MB/s
+BenchmarkGaloisXorParallel3_1M-4           10000            193037 ns/op        16295.95 MB/s
+BenchmarkGaloisXorParallel4_1M-4            5000            247335 ns/op        16957.95 MB/s
+BenchmarkGaloisXorParallel22_1M-4          10000            222111 ns/op        18883.81 MB/s
+BenchmarkGaloisXorParallel33_1M-4           5000            374513 ns/op        25198.55 MB/s

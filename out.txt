@@ -1,0 +1,327 @@
+TEXT ·galMulAVX512XorParallel84(SB), 7, $0
+	MOVQ  in_len+56(FP), R9        // R9: len(in)
+	SHRQ  $6, R9                   // len(in) / 64
+	TESTQ R9, R9
+	JZ    done_xor_avx512_parallel84
+
+	MOVQ low+0(FP), SI
+	                 // VMOVDQU64 ZMM16, 0x000[rsi]
+	                 // VMOVDQU64 ZMM17, 0x040[rsi]
+	                 // VMOVDQU64 ZMM18, 0x080[rsi]
+	                 // VMOVDQU64 ZMM19, 0x0c0[rsi]
+	                 // VMOVDQU64 ZMM20, 0x100[rsi]
+	                 // VMOVDQU64 ZMM21, 0x140[rsi]
+	                 // VMOVDQU64 ZMM22, 0x180[rsi]
+	                 // VMOVDQU64 ZMM23, 0x1c0[rsi]
+	                 // VMOVDQU64 ZMM24, 0x200[rsi]
+	                 // VMOVDQU64 ZMM25, 0x240[rsi]
+	                 // VMOVDQU64 ZMM26, 0x280[rsi]
+	                 // VMOVDQU64 ZMM27, 0x2c0[rsi]
+	                 // VMOVDQU64 ZMM28, 0x300[rsi]
+	                 // VMOVDQU64 ZMM29, 0x340[rsi]
+	                 // VMOVDQU64 ZMM30, 0x380[rsi]
+	                 // VMOVDQU64 ZMM31, 0x3c0[rsi]
+
+	MOVQ         $15, BX
+	MOVQ         BX, X5
+	                 // VPBROADCASTB ZMM3, XMM5
+
+	MOVQ out+72(FP), DX    // DX: &out
+	MOVQ in+48(FP), SI     // SI: &in
+	MOVQ in2+96(FP), AX    // AX: &in2
+	MOVQ in3+120(FP), BX   // BX: &in3
+	MOVQ out2+168(FP), CX  // CX: &out2
+	MOVQ out3+192(FP), R10 // R10: &out3
+	MOVQ in4+144(FP), R11  // R11: &in4
+	MOVQ out4+216(FP), R12 // R12: &out4
+	MOVQ in5+384(FP), R13  // R13: &in5
+	MOVQ in6+408(FP), R14  // R14: &in6
+	MOVQ in7+432(FP), R15  // R15: &in7
+	MOVQ in8+456(FP), R8   // R8: &in8
+
+loopback_xor_avx512_parallel84:
+	                 // VMOVDQU64 ZMM4, [rdx]
+	                 // VMOVDQU64 ZMM5, [rcx]
+	                 // VMOVDQU64 ZMM6, [r10]
+	                 // VMOVDQU64 ZMM7, [r12]
+
+	                 // VMOVDQU64 ZMM0, [rsi]
+	                 // VSHUFI64x2 ZMM14, ZMM16, ZMM16, 0x00
+	                 // VSHUFI64x2 ZMM15, ZMM16, ZMM16, 0x55
+	                 // VPSRLQ   ZMM1, ZMM0, 4     ; high input
+	                 // VPANDQ   ZMM0, ZMM0, ZMM3  ; low input
+	                 // VPANDQ   ZMM1, ZMM1, ZMM3  ; high input
+	                 // VPSHUFB  ZMM2, ZMM14, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM15, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM4, ZMM4, ZMM2
+
+	                 // VSHUFI64x2 ZMM12, ZMM20, ZMM20, 0x00
+	                 // VSHUFI64x2 ZMM13, ZMM20, ZMM20, 0x55
+	                 // VPSHUFB  ZMM2, ZMM12, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM13, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM5, ZMM5, ZMM2
+
+	                 // VSHUFI64x2 ZMM10, ZMM24, ZMM24, 0x00
+	                 // VSHUFI64x2 ZMM11, ZMM24, ZMM24, 0x55
+	                 // VPSHUFB  ZMM2, ZMM10, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM11, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM6, ZMM6, ZMM2
+
+	                 // VSHUFI64x2 ZMM8, ZMM28, ZMM28, 0x00
+	                 // VSHUFI64x2 ZMM9, ZMM28, ZMM28, 0x55
+	                 // VPSHUFB  ZMM2, ZMM8, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM9, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM7, ZMM7, ZMM2
+
+	                 // VMOVDQU64 ZMM0, [rax]
+	                 // VSHUFI64x2 ZMM14, ZMM16, ZMM16, 0xaa
+	                 // VSHUFI64x2 ZMM15, ZMM16, ZMM16, 0xff
+	                 // VPSRLQ   ZMM1, ZMM0, 4     ; high input
+	                 // VPANDQ   ZMM0, ZMM0, ZMM3  ; low input
+	                 // VPANDQ   ZMM1, ZMM1, ZMM3  ; high input
+	                 // VPSHUFB  ZMM2, ZMM14, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM15, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM4, ZMM4, ZMM2
+
+	                 // VSHUFI64x2 ZMM12, ZMM20, ZMM20, 0xaa
+	                 // VSHUFI64x2 ZMM13, ZMM20, ZMM20, 0xff
+	                 // VPSHUFB  ZMM2, ZMM12, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM13, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM5, ZMM5, ZMM2
+
+	                 // VSHUFI64x2 ZMM10, ZMM24, ZMM24, 0xaa
+	                 // VSHUFI64x2 ZMM11, ZMM24, ZMM24, 0xff
+	                 // VPSHUFB  ZMM2, ZMM10, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM11, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM6, ZMM6, ZMM2
+
+	                 // VSHUFI64x2 ZMM8, ZMM28, ZMM28, 0xaa
+	                 // VSHUFI64x2 ZMM9, ZMM28, ZMM28, 0xff
+	                 // VPSHUFB  ZMM2, ZMM8, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM9, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM7, ZMM7, ZMM2
+
+	                 // VMOVDQU64 ZMM0, [rbx]
+	                 // VSHUFI64x2 ZMM14, ZMM17, ZMM17, 0x00
+	                 // VSHUFI64x2 ZMM15, ZMM17, ZMM17, 0x55
+	                 // VPSRLQ   ZMM1, ZMM0, 4     ; high input
+	                 // VPANDQ   ZMM0, ZMM0, ZMM3  ; low input
+	                 // VPANDQ   ZMM1, ZMM1, ZMM3  ; high input
+	                 // VPSHUFB  ZMM2, ZMM14, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM15, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM4, ZMM4, ZMM2
+
+	                 // VSHUFI64x2 ZMM12, ZMM21, ZMM21, 0x00
+	                 // VSHUFI64x2 ZMM13, ZMM21, ZMM21, 0x55
+	                 // VPSHUFB  ZMM2, ZMM12, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM13, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM5, ZMM5, ZMM2
+
+	                 // VSHUFI64x2 ZMM10, ZMM25, ZMM25, 0x00
+	                 // VSHUFI64x2 ZMM11, ZMM25, ZMM25, 0x55
+	                 // VPSHUFB  ZMM2, ZMM10, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM11, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM6, ZMM6, ZMM2
+
+	                 // VSHUFI64x2 ZMM8, ZMM29, ZMM29, 0x00
+	                 // VSHUFI64x2 ZMM9, ZMM29, ZMM29, 0x55
+	                 // VPSHUFB  ZMM2, ZMM8, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM9, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM7, ZMM7, ZMM2
+
+	                 // VMOVDQU64 ZMM0, [r11]
+	                 // VSHUFI64x2 ZMM14, ZMM17, ZMM17, 0xaa
+	                 // VSHUFI64x2 ZMM15, ZMM17, ZMM17, 0xff
+	                 // VPSRLQ   ZMM1, ZMM0, 4     ; high input
+	                 // VPANDQ   ZMM0, ZMM0, ZMM3  ; low input
+	                 // VPANDQ   ZMM1, ZMM1, ZMM3  ; high input
+	                 // VPSHUFB  ZMM2, ZMM14, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM15, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM4, ZMM4, ZMM2
+
+	                 // VSHUFI64x2 ZMM12, ZMM21, ZMM21, 0xaa
+	                 // VSHUFI64x2 ZMM13, ZMM21, ZMM21, 0xff
+	                 // VPSHUFB  ZMM2, ZMM12, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM13, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM5, ZMM5, ZMM2
+
+	                 // VSHUFI64x2 ZMM10, ZMM25, ZMM25, 0xaa
+	                 // VSHUFI64x2 ZMM11, ZMM25, ZMM25, 0xff
+	                 // VPSHUFB  ZMM2, ZMM10, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM11, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM6, ZMM6, ZMM2
+
+	                 // VSHUFI64x2 ZMM8, ZMM29, ZMM29, 0xaa
+	                 // VSHUFI64x2 ZMM9, ZMM29, ZMM29, 0xff
+	                 // VPSHUFB  ZMM2, ZMM8, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM9, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM7, ZMM7, ZMM2
+
+	                 // VMOVDQU64 ZMM0, [r13]
+	                 // VSHUFI64x2 ZMM14, ZMM18, ZMM18, 0x00
+	                 // VSHUFI64x2 ZMM15, ZMM18, ZMM18, 0x55
+	                 // VPSRLQ   ZMM1, ZMM0, 4     ; high input
+	                 // VPANDQ   ZMM0, ZMM0, ZMM3  ; low input
+	                 // VPANDQ   ZMM1, ZMM1, ZMM3  ; high input
+	                 // VPSHUFB  ZMM2, ZMM14, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM15, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM4, ZMM4, ZMM2
+
+	                 // VSHUFI64x2 ZMM12, ZMM22, ZMM22, 0x00
+	                 // VSHUFI64x2 ZMM13, ZMM22, ZMM22, 0x55
+	                 // VPSHUFB  ZMM2, ZMM12, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM13, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM5, ZMM5, ZMM2
+
+	                 // VSHUFI64x2 ZMM10, ZMM26, ZMM26, 0x00
+	                 // VSHUFI64x2 ZMM11, ZMM26, ZMM26, 0x55
+	                 // VPSHUFB  ZMM2, ZMM10, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM11, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM6, ZMM6, ZMM2
+
+	                 // VSHUFI64x2 ZMM8, ZMM30, ZMM30, 0x00
+	                 // VSHUFI64x2 ZMM9, ZMM30, ZMM30, 0x55
+	                 // VPSHUFB  ZMM2, ZMM8, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM9, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM7, ZMM7, ZMM2
+
+	                 // VMOVDQU64 ZMM0, [r14]
+	                 // VSHUFI64x2 ZMM14, ZMM18, ZMM18, 0xaa
+	                 // VSHUFI64x2 ZMM15, ZMM18, ZMM18, 0xff
+	                 // VPSRLQ   ZMM1, ZMM0, 4     ; high input
+	                 // VPANDQ   ZMM0, ZMM0, ZMM3  ; low input
+	                 // VPANDQ   ZMM1, ZMM1, ZMM3  ; high input
+	                 // VPSHUFB  ZMM2, ZMM14, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM15, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM4, ZMM4, ZMM2
+
+	                 // VSHUFI64x2 ZMM12, ZMM22, ZMM22, 0xaa
+	                 // VSHUFI64x2 ZMM13, ZMM22, ZMM22, 0xff
+	                 // VPSHUFB  ZMM2, ZMM12, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM13, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM5, ZMM5, ZMM2
+
+	                 // VSHUFI64x2 ZMM10, ZMM26, ZMM26, 0xaa
+	                 // VSHUFI64x2 ZMM11, ZMM26, ZMM26, 0xff
+	                 // VPSHUFB  ZMM2, ZMM10, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM11, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM6, ZMM6, ZMM2
+
+	                 // VSHUFI64x2 ZMM8, ZMM30, ZMM30, 0xaa
+	                 // VSHUFI64x2 ZMM9, ZMM30, ZMM30, 0xff
+	                 // VPSHUFB  ZMM2, ZMM8, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM9, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM7, ZMM7, ZMM2
+
+	                 // VMOVDQU64 ZMM0, [r15]
+	                 // VSHUFI64x2 ZMM14, ZMM19, ZMM19, 0x00
+	                 // VSHUFI64x2 ZMM15, ZMM19, ZMM19, 0x55
+	                 // VPSRLQ   ZMM1, ZMM0, 4     ; high input
+	                 // VPANDQ   ZMM0, ZMM0, ZMM3  ; low input
+	                 // VPANDQ   ZMM1, ZMM1, ZMM3  ; high input
+	                 // VPSHUFB  ZMM2, ZMM14, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM15, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM4, ZMM4, ZMM2
+
+	                 // VSHUFI64x2 ZMM12, ZMM23, ZMM23, 0x00
+	                 // VSHUFI64x2 ZMM13, ZMM23, ZMM23, 0x55
+	                 // VPSHUFB  ZMM2, ZMM12, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM13, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM5, ZMM5, ZMM2
+
+	                 // VSHUFI64x2 ZMM10, ZMM27, ZMM27, 0x00
+	                 // VSHUFI64x2 ZMM11, ZMM27, ZMM27, 0x55
+	                 // VPSHUFB  ZMM2, ZMM10, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM11, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM6, ZMM6, ZMM2
+
+	                 // VSHUFI64x2 ZMM8, ZMM31, ZMM31, 0x00
+	                 // VSHUFI64x2 ZMM9, ZMM31, ZMM31, 0x55
+	                 // VPSHUFB  ZMM2, ZMM8, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM9, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM7, ZMM7, ZMM2
+
+	                 // VMOVDQU64 ZMM0, [r8]
+	                 // VSHUFI64x2 ZMM14, ZMM19, ZMM19, 0xaa
+	                 // VSHUFI64x2 ZMM15, ZMM19, ZMM19, 0xff
+	                 // VPSRLQ   ZMM1, ZMM0, 4     ; high input
+	                 // VPANDQ   ZMM0, ZMM0, ZMM3  ; low input
+	                 // VPANDQ   ZMM1, ZMM1, ZMM3  ; high input
+	                 // VPSHUFB  ZMM2, ZMM14, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM15, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM4, ZMM4, ZMM2
+
+	                 // VSHUFI64x2 ZMM12, ZMM23, ZMM23, 0xaa
+	                 // VSHUFI64x2 ZMM13, ZMM23, ZMM23, 0xff
+	                 // VPSHUFB  ZMM2, ZMM12, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM13, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM5, ZMM5, ZMM2
+
+	                 // VSHUFI64x2 ZMM10, ZMM27, ZMM27, 0xaa
+	                 // VSHUFI64x2 ZMM11, ZMM27, ZMM27, 0xff
+	                 // VPSHUFB  ZMM2, ZMM10, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM11, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM6, ZMM6, ZMM2
+
+	                 // VSHUFI64x2 ZMM8, ZMM31, ZMM31, 0xaa
+	                 // VSHUFI64x2 ZMM9, ZMM31, ZMM31, 0xff
+	                 // VPSHUFB  ZMM2, ZMM8, ZMM0  ; mul low part
+	                 // VPSHUFB  ZMM1, ZMM9, ZMM1  ; mul high part
+	                 // VPXORQ   ZMM2, ZMM2, ZMM1  ; result
+	                 // VPXORQ   ZMM7, ZMM7, ZMM2
+
+	                 // VMOVDQU64 [rdx], ZMM4
+	                 // VMOVDQU64 [rcx], ZMM5
+	                 // VMOVDQU64 [r10], ZMM6
+	                 // VMOVDQU64 [r12], ZMM7
+
+	ADDQ $64, SI  // in+=64
+	ADDQ $64, AX  // in2+=64
+	ADDQ $64, BX  // in3+=64
+	ADDQ $64, DX  // out+=64
+	ADDQ $64, CX  // out2+=64
+	ADDQ $64, R10 // out3+=64
+	ADDQ $64, R11 // in4+=64
+	ADDQ $64, R12 // out4+=64
+	ADDQ $64, R13 // in5+=64
+	ADDQ $64, R14 // in6+=64
+	ADDQ $64, R15 // in7+=64
+	ADDQ $64, R8 // in8+=64
+
+	SUBQ $1, R9
+	JNZ  loopback_xor_avx512_parallel84
+
+done_xor_avx512_parallel84:
+	VZEROUPPER
+	RET

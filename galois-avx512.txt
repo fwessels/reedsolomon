@@ -1,0 +1,2 @@
+BenchmarkGaloisEncode6x6x10M-4                100          13330046 ns/op        4719.76 MB/s
+BenchmarkGaloisEncode8x4x10M-4                100          12460024 ns/op        3366.21 MB/s
