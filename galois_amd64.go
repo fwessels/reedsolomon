@@ -44,6 +44,12 @@ func galMulAVX512XorParallel44(low, high, in, out, in2, in3, in4, out2, out3, ou
 //go:noescape
 func galMulAVX512Parallel84(in, out [][]byte, matrix []byte, clear bool) (result int64)
 
+//go:noescape
+func galMulAVX512Parallel66(in, out [][]byte, matrix []byte, xor bool)
+
+//go:noescape
+func galMulAVX512Parallel57(in, out [][]byte, matrix []byte, xor bool)
+
 // This is what the assembler routines do in blocks of 16 bytes:
 /*
 func galMulSSSE3(low, high, in, out []byte) {

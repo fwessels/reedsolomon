@@ -11,6 +11,8 @@ import (
 	"bytes"
 	"testing"
 	"fmt"
+	"math/rand"
+	"sync"
 )
 
 func TestAssociativity(t *testing.T) {
@@ -250,6 +252,14 @@ func benchmarkGaloisXor(b *testing.B, size int) {
 	}
 }
 
+func BenchmarkGaloisXor128K(b *testing.B) {
+	benchmarkGaloisXor(b, 128*1024)
+}
+
+func BenchmarkGaloisXor1M(b *testing.B) {
+	benchmarkGaloisXor(b, 1024*1024)
+}
+
 func BenchmarkGaloisXor10M(b *testing.B) {
 	benchmarkGaloisXor(b, 10*1024*1024)
 }
@@ -400,20 +410,43 @@ func benchmarkGaloisXor512Parallel44(b *testing.B, size int) {
 	}
 }
 
+func BenchmarkGaloisXor512Parallel44_10M(b *testing.B) {
+	benchmarkGaloisXor512Parallel44(b, 10*1024*1024)
+}
+
 func TestGaloisAvx512Parallel84(t *testing.T) {
-	//size := 1024*1024
-	in1 := make([]byte, 1 /*size*/)
-	in2 := make([]byte, 2 /*size*/)
-	in3 := make([]byte, 3 /*size*/)
-	in4 := make([]byte, 4 /*size*/)
-	in5 := make([]byte, 5 /*size*/)
-	in6 := make([]byte, 6 /*size*/)
-	in7 := make([]byte, 7 /*size*/)
-	in8 := make([]byte, 8 /*size*/)
-	out1 := make([]byte, 9) //size)
-	out2 := make([]byte, 10) //size)
-	out3 := make([]byte, 11) //size)
-	out4 := make([]byte, 12) //size)
+
+	if !defaultOptions.useAVX512 {
+		return
+	}
+
+	size := 1024 * 1024
+	in1 := make([]byte, size)
+	in2 := make([]byte, size)
+	in3 := make([]byte, size)
+	in4 := make([]byte, size)
+	in5 := make([]byte, size)
+	in6 := make([]byte, size)
+	in7 := make([]byte, size)
+	in8 := make([]byte, size)
+	out1 := make([]byte, size)
+	out2 := make([]byte, size)
+	out3 := make([]byte, size)
+	out4 := make([]byte, size)
+
+	rand.Read(in1)
+	rand.Read(in2)
+	rand.Read(in3)
+	rand.Read(in4)
+	rand.Read(in5)
+	rand.Read(in6)
+	rand.Read(in7)
+	rand.Read(in8)
+
+	rand.Read(out1)
+	rand.Read(out2)
+	rand.Read(out3)
+	rand.Read(out4)
 
 	opts := defaultOptions
 	opts.useSSSE3 = true
@@ -423,12 +456,415 @@ func TestGaloisAvx512Parallel84(t *testing.T) {
 	out := make([][]byte, 4)
 	out[0], out[1], out[2], out[3] = out1, out2, out3, out4
 
-	matrix := make([]byte, (16+16)*8*4)
+	matrix := make([]byte, (16+16)*len(in)*len(out))
+	coeffs := make([]byte, len(in)*len(out))
 
-	a := galMulAVX512Parallel84(in, out, matrix, false)
-	fmt.Println(a)
+	for i := 0; i < len(in)*len(out); i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+		copy(matrix[i*32:], mulTableLow[coeffs[i]][:])
+		copy(matrix[i*32+16:], mulTableHigh[coeffs[i]][:])
+	}
+
+	galMulAVX512Parallel84(in, out, matrix, false)
+
+	verify1, verify2, verify3, verify4 := make([]byte, size), make([]byte, size), make([]byte, size), make([]byte, size)
+	rand.Read(verify1)
+	rand.Read(verify2)
+	rand.Read(verify3)
+	rand.Read(verify4)
+
+	for i := range in {
+		if i == 0 {
+			galMulSlice(coeffs[i], in[i], verify1, false, false)
+			galMulSlice(coeffs[8+i], in[i], verify2, false, false)
+			galMulSlice(coeffs[16+i], in[i], verify3, false, false)
+			galMulSlice(coeffs[24+i], in[i], verify4, false, false)
+		} else {
+			galMulSliceXor(coeffs[i], in[i], verify1, false, false)
+			galMulSliceXor(coeffs[8+i], in[i], verify2, false, false)
+			galMulSliceXor(coeffs[16+i], in[i], verify3, false, false)
+			galMulSliceXor(coeffs[24+i], in[i], verify4, false, false)
+		}
+	}
+	fmt.Println(out1[:10])
+	fmt.Println(verify1[:10])
+
+	fmt.Println(out2[:10])
+	fmt.Println(verify2[:10])
+
+	fmt.Println(out3[:10])
+	fmt.Println(verify3[:10])
+
+	fmt.Println(out4[:10])
+	fmt.Println(verify4[:10])
+
+	in9 := make([]byte, size)
+	in10 := make([]byte, size)
+	in11 := make([]byte, size)
+	in12 := make([]byte, size)
+	in13 := make([]byte, size)
+	in14 := make([]byte, size)
+	in15 := make([]byte, size)
+	in16 := make([]byte, size)
+
+	rand.Read(in9)
+	rand.Read(in10)
+	rand.Read(in11)
+	rand.Read(in12)
+	rand.Read(in13)
+	rand.Read(in14)
+	rand.Read(in15)
+	rand.Read(in16)
+
+	in[0], in[1], in[2], in[3], in[4], in[5], in[6], in[7] = in9, in10, in11, in12, in13, in14, in15, in16
+
+	for i := 0; i < len(in)*len(out); i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+		copy(matrix[i*32:], mulTableLow[coeffs[i]][:])
+		copy(matrix[i*32+16:], mulTableHigh[coeffs[i]][:])
+	}
+
+	galMulAVX512Parallel84(in, out, matrix, true)
+
+	for i := range in {
+		galMulSliceXor(coeffs[i], in[i], verify1, false, false)
+		galMulSliceXor(coeffs[8+i], in[i], verify2, false, false)
+		galMulSliceXor(coeffs[16+i], in[i], verify3, false, false)
+		galMulSliceXor(coeffs[24+i], in[i], verify4, false, false)
+	}
+
+	fmt.Println(out1[:10])
+	fmt.Println(verify1[:10])
+
+	fmt.Println(out2[:10])
+	fmt.Println(verify2[:10])
+
+	fmt.Println(out3[:10])
+	fmt.Println(verify3[:10])
+
+	fmt.Println(out4[:10])
+	fmt.Println(verify4[:10])
 }
 
-func BenchmarkGaloisXor512Parallel44_10M(b *testing.B) {
-	benchmarkGaloisXor512Parallel44(b, 10*1024*1024)
+func createArrays(dim, size int) (in [][]byte) {
+
+	in = make([][]byte, dim)
+
+	for d := 0; d < dim; d++ {
+		in[d] = make([]byte, size)
+		rand.Read(in[d])
+	}
+
+	return
+}
+
+func benchmarkGaloisEncode8x4x10M_AVX512_Parallel(b *testing.B, cores, size int) {
+
+	const inDim = 8
+	const outDim = 4
+
+	in, out := make([][][]byte, cores), make([][][]byte, cores)
+	for c := 0; c < cores; c++ {
+		in[c] = createArrays(inDim, size)
+		out[c] = createArrays(outDim, size)
+	}
+
+	matrix := make([]byte, (16+16)*inDim*outDim)
+	coeffs := make([]byte, inDim*outDim)
+
+	for i := 0; i < inDim*outDim; i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+		copy(matrix[i*32:], mulTableLow[coeffs[i]][:])
+		copy(matrix[i*32+16:], mulTableHigh[coeffs[i]][:])
+	}
+
+	b.SetBytes(int64(size * outDim * cores))
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		var wg sync.WaitGroup
+		for c := 0; c < cores; c++ {
+			wg.Add(1)
+			go func(c int) { galMulAVX512Parallel84(in[c], out[c], matrix, false); wg.Done() }(c)
+		}
+		wg.Wait()
+	}
+}
+
+func BenchmarkGaloisEncode8x4x10M_AVX512_2Cores(b *testing.B) {
+	benchmarkGaloisEncode8x4x10M_AVX512_Parallel(b, 2, 10*1024*1024)
+}
+
+func BenchmarkGaloisEncode8x4x10M_AVX512_3Cores(b *testing.B) {
+	benchmarkGaloisEncode8x4x10M_AVX512_Parallel(b, 3, 10*1024*1024)
+}
+
+func BenchmarkGaloisEncode8x4x10M_AVX512_4Cores(b *testing.B) {
+	benchmarkGaloisEncode8x4x10M_AVX512_Parallel(b, 4, 10*1024*1024)
+}
+
+func BenchmarkGaloisEncode8x4x10M_AVX512_6Cores(b *testing.B) {
+	benchmarkGaloisEncode8x4x10M_AVX512_Parallel(b, 6, 10*1024*1024)
+}
+
+func benchmarkGaloisEncode8x4x10M_AVX2(b *testing.B, cores, size int) {
+
+	const inDim = 8
+	const outDim = 4
+
+	in, out := make([][][]byte, cores), make([][][]byte, cores)
+	for c := 0; c < cores; c++ {
+		in[c] = createArrays(inDim, size)
+		out[c] = createArrays(outDim, size)
+	}
+
+	coeffs := make([]byte, inDim*outDim)
+
+	for i := 0; i < inDim*outDim; i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+	}
+
+	b.SetBytes(int64(size * outDim * cores))
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		var wg sync.WaitGroup
+		for c := 0; c < cores; c++ {
+			wg.Add(1)
+			go func(c int) {
+				for i := range in[c] {
+					if i == 0 {
+						galMulSlice(coeffs[i], in[c][i], out[c][0], false, true)
+						galMulSlice(coeffs[8+i], in[c][i], out[c][1], false, true)
+						galMulSlice(coeffs[16+i], in[c][i], out[c][2], false, true)
+						galMulSlice(coeffs[24+i], in[c][i], out[c][3], false, true)
+					} else {
+						galMulSliceXor(coeffs[i], in[c][i], out[c][0], false, true)
+						galMulSliceXor(coeffs[8+i], in[c][i], out[c][1], false, true)
+						galMulSliceXor(coeffs[16+i], in[c][i], out[c][2], false, true)
+						galMulSliceXor(coeffs[24+i], in[c][i], out[c][3], false, true)
+					}
+				}
+				wg.Done()
+			}(c)
+		}
+		wg.Wait()
+	}
+}
+
+func BenchmarkGaloisEncode8x4x10M_AVX2(b *testing.B) {
+	benchmarkGaloisEncode8x4x10M_AVX2(b, 1, 10*1024*1024)
+}
+
+func BenchmarkGaloisEncode8x4x10M_AVX2_2Cores(b *testing.B) {
+	benchmarkGaloisEncode8x4x10M_AVX2(b, 2, 10*1024*1024)
+}
+
+func BenchmarkGaloisEncode8x4x10M_AVX2_3Cores(b *testing.B) {
+	benchmarkGaloisEncode8x4x10M_AVX2(b, 3, 10*1024*1024)
+}
+
+func BenchmarkGaloisEncode8x4x10M_AVX2_4Cores(b *testing.B) {
+	benchmarkGaloisEncode8x4x10M_AVX2(b, 4, 10*1024*1024)
+}
+
+func BenchmarkGaloisEncode8x4x10M_AVX2_6Cores(b *testing.B) {
+	benchmarkGaloisEncode8x4x10M_AVX2(b, 6, 10*1024*1024)
+}
+
+func benchmarkGaloisEncode6x6x10M_AVX512_Parallel(b *testing.B, cores, size int) {
+
+	const inDim = 6
+	const outDim = 6
+
+	in, out := make([][][]byte, cores), make([][][]byte, cores)
+	for c := 0; c < cores; c++ {
+		in[c] = createArrays(inDim, size)
+		out[c] = createArrays(outDim, size)
+	}
+
+	matrix := make([]byte, (16+16)*inDim*outDim)
+	coeffs := make([]byte, inDim*outDim)
+
+	for i := 0; i < inDim*outDim; i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+		copy(matrix[i*32:], mulTableLow[coeffs[i]][:])
+		copy(matrix[i*32+16:], mulTableHigh[coeffs[i]][:])
+	}
+
+	b.SetBytes(int64(size * outDim * cores))
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		var wg sync.WaitGroup
+		for c := 0; c < cores; c++ {
+			wg.Add(1)
+			go func(c int) { galMulAVX512Parallel66(in[c], out[c], matrix, false); wg.Done() }(c)
+		}
+		wg.Wait()
+	}
+}
+
+func BenchmarkGaloisEncode6x6x10M_AVX512(b *testing.B) {
+	benchmarkGaloisEncode6x6x10M_AVX512_Parallel(b, 1, 10*1024*1024)
+}
+
+func BenchmarkGaloisEncode6x6x10M_AVX512_2Cores(b *testing.B) {
+	benchmarkGaloisEncode6x6x10M_AVX512_Parallel(b, 2, 10*1024*1024)
+}
+
+func BenchmarkGaloisEncode6x6x10M_AVX512_3Cores(b *testing.B) {
+	benchmarkGaloisEncode6x6x10M_AVX512_Parallel(b, 3, 10*1024*1024)
+}
+
+func benchmarkGaloisEncode6x6x10M_AVX2(b *testing.B, cores, size int) {
+
+	const inDim = 6
+	const outDim = 6
+
+	in, out := make([][][]byte, cores), make([][][]byte, cores)
+	for c := 0; c < cores; c++ {
+		in[c] = createArrays(inDim, size)
+		out[c] = createArrays(outDim, size)
+	}
+
+	coeffs := make([]byte, inDim*outDim)
+
+	for i := 0; i < inDim*outDim; i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+	}
+
+	b.SetBytes(int64(size * outDim * cores))
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		var wg sync.WaitGroup
+		for c := 0; c < cores; c++ {
+			wg.Add(1)
+			go func(c int) {
+				for i := range in[c] {
+					if i == 0 {
+						galMulSlice(coeffs[i], in[c][i], out[c][0], false, true)
+						galMulSlice(coeffs[6+i], in[c][i], out[c][1], false, true)
+						galMulSlice(coeffs[12+i], in[c][i], out[c][2], false, true)
+						galMulSlice(coeffs[18+i], in[c][i], out[c][3], false, true)
+						galMulSlice(coeffs[24+i], in[c][i], out[c][3], false, true)
+						galMulSlice(coeffs[30+i], in[c][i], out[c][3], false, true)
+					} else {
+						galMulSliceXor(coeffs[i], in[c][i], out[c][0], false, true)
+						galMulSliceXor(coeffs[6+i], in[c][i], out[c][1], false, true)
+						galMulSliceXor(coeffs[12+i], in[c][i], out[c][2], false, true)
+						galMulSliceXor(coeffs[18+i], in[c][i], out[c][3], false, true)
+						galMulSliceXor(coeffs[24+i], in[c][i], out[c][3], false, true)
+						galMulSliceXor(coeffs[30+i], in[c][i], out[c][3], false, true)
+					}
+				}
+				wg.Done()
+			}(c)
+		}
+		wg.Wait()
+	}
+}
+
+func BenchmarkGaloisEncode6x6x10M_AVX2(b *testing.B) {
+	benchmarkGaloisEncode6x6x10M_AVX2(b, 1, 10*1024*1024)
+}
+
+func BenchmarkGaloisEncode6x6x10M_AVX2_2Cores(b *testing.B) {
+	benchmarkGaloisEncode6x6x10M_AVX2(b, 2, 10*1024*1024)
+}
+
+func BenchmarkGaloisEncode6x6x10M_AVX2_3Cores(b *testing.B) {
+	benchmarkGaloisEncode6x6x10M_AVX2(b, 3, 10*1024*1024)
+}
+
+func benchmarkGaloisEncode5x7x10M_AVX512_Parallel(b *testing.B, cores, size int) {
+
+	const inDim = 5
+	const outDim = 7
+
+	in, out := make([][][]byte, cores), make([][][]byte, cores)
+	for c := 0; c < cores; c++ {
+		in[c] = createArrays(inDim, size)
+		out[c] = createArrays(outDim, size)
+	}
+
+	matrix := make([]byte, ((16+16)*inDim*outDim+31)&^31)
+	coeffs := make([]byte, inDim*outDim)
+
+	for i := 0; i < inDim*outDim; i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+		copy(matrix[i*32:], mulTableLow[coeffs[i]][:])
+		copy(matrix[i*32+16:], mulTableHigh[coeffs[i]][:])
+	}
+
+	b.SetBytes(int64(size * outDim * cores))
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		var wg sync.WaitGroup
+		for c := 0; c < cores; c++ {
+			wg.Add(1)
+			go func(c int) { galMulAVX512Parallel57(in[c], out[c], matrix, false); wg.Done() }(c)
+		}
+		wg.Wait()
+	}
+}
+
+func BenchmarkGaloisEncode5x7x10M_AVX512(b *testing.B) {
+	benchmarkGaloisEncode5x7x10M_AVX512_Parallel(b, 1, 10*1024*1024)
+}
+
+func BenchmarkGaloisEncode5x7x10M_AVX512_2Cores(b *testing.B) {
+	benchmarkGaloisEncode5x7x10M_AVX512_Parallel(b, 2, 10*1024*1024)
+}
+
+func benchmarkGaloisEncode5x7x10M_AVX2(b *testing.B, cores, size int) {
+
+	const inDim = 5
+	const outDim = 7
+
+	in, out := make([][][]byte, cores), make([][][]byte, cores)
+	for c := 0; c < cores; c++ {
+		in[c] = createArrays(inDim, size)
+		out[c] = createArrays(outDim, size)
+	}
+
+	coeffs := make([]byte, inDim*outDim)
+
+	for i := 0; i < inDim*outDim; i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+	}
+
+	b.SetBytes(int64(size * outDim * cores))
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		var wg sync.WaitGroup
+		for c := 0; c < cores; c++ {
+			wg.Add(1)
+			go func(c int) {
+				for i := range in[c] {
+					if i == 0 {
+						galMulSlice(coeffs[i], in[c][i], out[c][0], false, true)
+						galMulSlice(coeffs[6+i], in[c][i], out[c][1], false, true)
+						galMulSlice(coeffs[12+i], in[c][i], out[c][2], false, true)
+						galMulSlice(coeffs[18+i], in[c][i], out[c][3], false, true)
+						galMulSlice(coeffs[24+i], in[c][i], out[c][3], false, true)
+						galMulSlice(coeffs[30+i], in[c][i], out[c][3], false, true)
+					} else {
+						galMulSliceXor(coeffs[i], in[c][i], out[c][0], false, true)
+						galMulSliceXor(coeffs[6+i], in[c][i], out[c][1], false, true)
+						galMulSliceXor(coeffs[12+i], in[c][i], out[c][2], false, true)
+						galMulSliceXor(coeffs[18+i], in[c][i], out[c][3], false, true)
+						galMulSliceXor(coeffs[24+i], in[c][i], out[c][3], false, true)
+						galMulSliceXor(coeffs[30+i], in[c][i], out[c][3], false, true)
+					}
+				}
+				wg.Done()
+			}(c)
+		}
+		wg.Wait()
+	}
+}
+
+func BenchmarkGaloisEncode5x7x10M_AVX2(b *testing.B) {
+	benchmarkGaloisEncode5x7x10M_AVX2(b, 1, 10*1024*1024)
 }
