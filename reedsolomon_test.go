@@ -726,6 +726,19 @@ func BenchmarkEncode50x20x1M(b *testing.B) {
 func BenchmarkEncode17x3x16M(b *testing.B) {
 	benchmarkEncode(b, 17, 3, 16*1024*1024)
 }
+func BenchmarkEncode8x4x8M(b *testing.B) { benchmarkEncode(b, 8, 4, 8*1024*1024) }
+func BenchmarkEncode12x4x12M(b *testing.B) { benchmarkEncode(b, 12, 4, 12*1024*1024) }
+func BenchmarkEncode16x4x16M(b *testing.B) { benchmarkEncode(b, 16, 4, 16*1024*1024) }
+func BenchmarkEncode16x4x32M(b *testing.B) { benchmarkEncode(b, 16, 4, 32*1024*1024) }
+func BenchmarkEncode16x4x64M(b *testing.B) { benchmarkEncode(b, 16, 4, 64*1024*1024) }
+
+func BenchmarkEncode8x8x05M(b *testing.B) { benchmarkEncode(b, 8, 8, 1*1024*1024/2) }
+func BenchmarkEncode8x8x1M(b *testing.B) { benchmarkEncode(b, 8, 8, 1*1024*1024) }
+func BenchmarkEncode8x8x8M(b *testing.B) { benchmarkEncode(b, 8, 8, 8*1024*1024) }
+func BenchmarkEncode8x8x32M(b *testing.B) { benchmarkEncode(b, 8, 8, 32*1024*1024) }
+
+func BenchmarkEncode24x8x24M(b *testing.B) { benchmarkEncode(b, 24, 8, 24*1024*1024) }
+func BenchmarkEncode24x8x48M(b *testing.B) { benchmarkEncode(b, 24, 8, 48*1024*1024) }
 
 func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 	r, err := New(dataShards, parityShards)

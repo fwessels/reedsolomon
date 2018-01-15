@@ -28,6 +28,7 @@ type Encoder interface {
 	// will remain the same, so it is safe for you to read from the
 	// data shards while this is running.
 	Encode(shards [][]byte) error
+	EncodeAvx512(shards [][]byte) error
 
 	// Verify returns true if the parity shards contain correct data.
 	// The data is the same format as Encode. No data is modified, so
@@ -282,6 +283,24 @@ func (r reedSolomon) Encode(shards [][]byte) error {
 	// Do the coding.
 	r.codeSomeShards(r.parity, shards[0:r.DataShards], output, r.ParityShards, len(shards[0]))
 	return nil
+}
+
+func (r reedSolomon) EncodeAvx512(shards [][]byte) error {
+        if len(shards) != r.Shards {
+                return ErrTooFewShards
+        }
+
+        err := checkShards(shards, false)
+        if err != nil {
+                return err
+        }
+
+        // Get the slice of output buffers.
+        output := shards[r.DataShards:]
+
+        // Do the coding.
+        r.codeSomeShardsAvx512(r.parity, shards[0:r.DataShards], output, r.ParityShards, len(shards[0]))
+        return nil
 }
 
 // ErrInvalidInput is returned if invalid input parameter of Update.
