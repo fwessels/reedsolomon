@@ -426,10 +426,11 @@ func (r reedSolomon) Verify(shards [][]byte) (bool, error) {
 // number of matrix rows used, is determined by
 // outputCount, which is the number of outputs to compute.
 func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
-	if r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize {
-		r.codeSomeShardsP(matrixRows, inputs, outputs, outputCount, byteCount)
-		return
-	}
+//	TODO: Re-enable code
+//	if r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize {
+//		r.codeSomeShardsP(matrixRows, inputs, outputs, outputCount, byteCount)
+//		return
+//	}
 	for c := 0; c < r.DataShards; c++ {
 		in := inputs[c]
 		for iRow := 0; iRow < outputCount; iRow++ {
