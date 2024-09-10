@@ -51,34 +51,34 @@ func galMulSlicesSve(matrix []byte, in, out [][]byte, start, stop int) (n int) {
 	switch len(out) {
 	case 1:
 		mulSve_10x1_64(matrix, in, out, start, n)
-		return n & (maxInt - 63)
+		return n & (maxInt - (defaultOptions.vectorLength*2 - 1))
 	case 2:
 		mulSve_10x2_64(matrix, in, out, start, n)
-		return n & (maxInt - 63)
+		return n & (maxInt - (defaultOptions.vectorLength*2 - 1))
 	case 3:
 		mulSve_10x3_64(matrix, in, out, start, n)
-		return n & (maxInt - 63)
+		return n & (maxInt - (defaultOptions.vectorLength*2 - 1))
 	case 4:
 		mulSve_10x4(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	case 5:
 		mulSve_10x5(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	case 6:
 		mulSve_10x6(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	case 7:
 		mulSve_10x7(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	case 8:
 		mulSve_10x8(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	case 9:
 		mulSve_10x9(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	case 10:
 		mulSve_10x10(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	}
 	panic(fmt.Sprintf("ARM SVE: unhandled size: %dx%d", len(in), len(out)))
 }
@@ -97,34 +97,34 @@ func galMulSlicesSveXor(matrix []byte, in, out [][]byte, start, stop int) (n int
 	switch len(out) {
 	case 1:
 		mulSve_10x1_64Xor(matrix, in, out, start, n)
-		return n & (maxInt - 63)
+		return n & (maxInt - (defaultOptions.vectorLength*2 - 1))
 	case 2:
 		mulSve_10x2_64Xor(matrix, in, out, start, n)
-		return n & (maxInt - 63)
+		return n & (maxInt - (defaultOptions.vectorLength*2 - 1))
 	case 3:
 		mulSve_10x3_64Xor(matrix, in, out, start, n)
-		return n & (maxInt - 63)
+		return n & (maxInt - (defaultOptions.vectorLength*2 - 1))
 	case 4:
 		mulSve_10x4Xor(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	case 5:
 		mulSve_10x5Xor(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	case 6:
 		mulSve_10x6Xor(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	case 7:
 		mulSve_10x7Xor(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	case 8:
 		mulSve_10x8Xor(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	case 9:
 		mulSve_10x9Xor(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	case 10:
 		mulSve_10x10Xor(matrix, in, out, start, n)
-		return n & (maxInt - 31)
+		return n & (maxInt - (defaultOptions.vectorLength - 1))
 	}
 	panic(fmt.Sprintf("ARM SVE: unhandled size: %dx%d", len(in), len(out)))
 }

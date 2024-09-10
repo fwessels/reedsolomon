@@ -1,6 +1,7 @@
 package reedsolomon
 
 import (
+	"fmt"
 	"runtime"
 	"strings"
 
@@ -323,7 +324,7 @@ func (o *options) cpuOptions() string {
 		res = append(res, "AVX+GFNI")
 	}
 	if o.useSVE {
-		res = append(res, "ARM+SVE")
+		res = append(res, fmt.Sprintf("ARM+SVE-%d", o.vectorLength<<3))
 	} else if o.useNEON {
 		res = append(res, "ARM+NEON")
 	}

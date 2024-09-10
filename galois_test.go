@@ -375,9 +375,9 @@ func testGenGaloisUpto10x10(t *testing.T, f, fXor func(matrix []byte, in, out []
 				}
 			}
 
-			size, stepsize := 32, 32
+			size, stepsize := vectorLength, vectorLength
 			if input <= 3 {
-				size, stepsize = 64, 64 // 3x? are all _64 versions
+				size, stepsize = size*2, stepsize*2 // 10x<1,2,3> are all _64 versions
 			}
 
 			// test early abort

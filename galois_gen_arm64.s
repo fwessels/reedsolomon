@@ -12,8 +12,8 @@ TEXT ·mulSve_10x1_64(SB), $0-88
     // Full registers estimated 46 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd346fc00 // lsr x0, x0, #6                              
-    WORD $0xd37ae400 // lsl x0, x0, #6
+                                  
+    
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -311,8 +311,8 @@ TEXT ·mulSve_10x1_64Xor(SB), $0-88
     // Full registers estimated 46 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd346fc00 // lsr x0, x0, #6                              
-    WORD $0xd37ae400 // lsl x0, x0, #6
+                                  
+    
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -616,8 +616,8 @@ TEXT ·mulSve_10x2_64(SB), $8-88
     // Full registers estimated 89 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd346fc00 // lsr x0, x0, #6                              
-    WORD $0xd37ae400 // lsl x0, x0, #6
+                                  
+    
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -1018,8 +1018,8 @@ TEXT ·mulSve_10x2_64Xor(SB), $8-88
     // Full registers estimated 89 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd346fc00 // lsr x0, x0, #6                              
-    WORD $0xd37ae400 // lsl x0, x0, #6
+                                  
+    
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -1430,8 +1430,8 @@ TEXT ·mulSve_10x3_64(SB), $8-88
     // Full registers estimated 130 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd346fc00 // lsr x0, x0, #6                              
-    WORD $0xd37ae400 // lsl x0, x0, #6
+                                  
+    
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -1475,8 +1475,8 @@ TEXT ·mulSve_10x3_64(SB), $8-88
 
     // Reload length to save a register
     MOVD n+80(FP), R6
-    WORD $0xd346fcc6 // lsr x6, x6, #6                              
-    WORD $0xd37ae4c6 // lsl x6, x6, #6
+
+
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad008c6 // udiv x6, x6, x16
 
@@ -1942,8 +1942,8 @@ TEXT ·mulSve_10x3_64Xor(SB), $8-88
     // Full registers estimated 130 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd346fc00 // lsr x0, x0, #6                              
-    WORD $0xd37ae400 // lsl x0, x0, #6
+                                  
+    
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -1987,8 +1987,8 @@ TEXT ·mulSve_10x3_64Xor(SB), $8-88
 
     // Reload length to save a register
     MOVD n+80(FP), R6
-    WORD $0xd346fcc6 // lsr x6, x6, #6                              
-    WORD $0xd37ae4c6 // lsl x6, x6, #6
+
+
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad008c6 // udiv x6, x6, x16
 
@@ -2469,8 +2469,8 @@ TEXT ·mulSve_10x4(SB), NOSPLIT, $8-88
     // Full registers estimated 89 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -2872,8 +2872,8 @@ TEXT ·mulSve_10x4Xor(SB), NOSPLIT, $8-88
     // Full registers estimated 89 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -3287,8 +3287,8 @@ TEXT ·mulSve_10x5(SB), NOSPLIT, $8-88
     // Full registers estimated 110 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -3751,8 +3751,8 @@ TEXT ·mulSve_10x5Xor(SB), NOSPLIT, $8-88
     // Full registers estimated 110 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -4230,8 +4230,8 @@ TEXT ·mulSve_10x6(SB), NOSPLIT, $8-88
     // Full registers estimated 131 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -4755,8 +4755,8 @@ TEXT ·mulSve_10x6Xor(SB), NOSPLIT, $8-88
     // Full registers estimated 131 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -5298,8 +5298,8 @@ TEXT ·mulSve_10x7(SB), NOSPLIT, $8-88
     // Full registers estimated 152 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -5884,8 +5884,8 @@ TEXT ·mulSve_10x7Xor(SB), NOSPLIT, $8-88
     // Full registers estimated 152 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -6491,8 +6491,8 @@ TEXT ·mulSve_10x8(SB), NOSPLIT, $8-88
     // Full registers estimated 173 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -7138,8 +7138,8 @@ TEXT ·mulSve_10x8Xor(SB), NOSPLIT, $8-88
     // Full registers estimated 173 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -7809,8 +7809,8 @@ TEXT ·mulSve_10x9(SB), NOSPLIT, $8-88
     // Full registers estimated 194 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -8517,8 +8517,8 @@ TEXT ·mulSve_10x9Xor(SB), NOSPLIT, $8-88
     // Full registers estimated 194 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -9252,8 +9252,8 @@ TEXT ·mulSve_10x10(SB), NOSPLIT, $8-88
     // Full registers estimated 215 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -10021,8 +10021,8 @@ TEXT ·mulSve_10x10Xor(SB), NOSPLIT, $8-88
     // Full registers estimated 215 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-    WORD $0xd345fc00 // lsr x0, x0, #5                              
-    WORD $0xd37be800 // lsl x0, x0, #5
+                                  
+    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
