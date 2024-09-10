@@ -9,11 +9,8 @@
 TEXT ·mulSve_10x1_64(SB), $0-88
     // Loading no tables to registers
     // Destination kept in GP registers
-    // Full registers estimated 46 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -308,11 +305,8 @@ mulSve_10x1_64_end:
 TEXT ·mulSve_10x1_64Xor(SB), $0-88
     // Loading no tables to registers
     // Destination kept in GP registers
-    // Full registers estimated 46 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -613,11 +607,8 @@ mulSve_10x1_64Xor_end:
 TEXT ·mulSve_10x2_64(SB), $8-88
     // Loading no tables to registers
     // Destination kept in GP registers
-    // Full registers estimated 89 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -1015,11 +1006,8 @@ mulSve_10x2_64_end:
 TEXT ·mulSve_10x2_64Xor(SB), $8-88
     // Loading no tables to registers
     // Destination kept in GP registers
-    // Full registers estimated 89 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -1427,11 +1415,8 @@ mulSve_10x2_64Xor_end:
 TEXT ·mulSve_10x3_64(SB), $8-88
     // Loading no tables to registers
     // Destination kept in GP registers
-    // Full registers estimated 130 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -1475,8 +1460,6 @@ TEXT ·mulSve_10x3_64(SB), $8-88
 
     // Reload length to save a register
     MOVD n+80(FP), R6
-
-
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad008c6 // udiv x6, x6, x16
 
@@ -1939,11 +1922,8 @@ mulSve_10x3_64_end:
 TEXT ·mulSve_10x3_64Xor(SB), $8-88
     // Loading no tables to registers
     // Destination kept in GP registers
-    // Full registers estimated 130 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -1987,8 +1967,6 @@ TEXT ·mulSve_10x3_64Xor(SB), $8-88
 
     // Reload length to save a register
     MOVD n+80(FP), R6
-
-
     WORD $0x04bf5050 // rdvl x16, #2
     WORD $0x9ad008c6 // udiv x6, x6, x16
 
@@ -2466,11 +2444,8 @@ TEXT ·mulSve_10x4(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 89 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -2869,11 +2844,8 @@ TEXT ·mulSve_10x4Xor(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 89 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -3284,11 +3256,8 @@ TEXT ·mulSve_10x5(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 110 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -3748,11 +3717,8 @@ TEXT ·mulSve_10x5Xor(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 110 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -4227,11 +4193,8 @@ TEXT ·mulSve_10x6(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 131 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -4752,11 +4715,8 @@ TEXT ·mulSve_10x6Xor(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 131 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -5295,11 +5255,8 @@ TEXT ·mulSve_10x7(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 152 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -5881,11 +5838,8 @@ TEXT ·mulSve_10x7Xor(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 152 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -6488,11 +6442,8 @@ TEXT ·mulSve_10x8(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 173 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -7135,11 +7086,8 @@ TEXT ·mulSve_10x8Xor(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 173 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -7806,11 +7754,8 @@ TEXT ·mulSve_10x9(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 194 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -8514,11 +8459,8 @@ TEXT ·mulSve_10x9Xor(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 194 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -9249,11 +9191,8 @@ TEXT ·mulSve_10x10(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 215 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -10018,11 +9957,8 @@ TEXT ·mulSve_10x10Xor(SB), NOSPLIT, $8-88
     WORD $0x25d8e3e0 // ptrue p0.d
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 215 YMM used
     MOVD n+80(FP), R0
     MOVD matrix_base+0(FP), R2
-                                  
-    
     WORD $0x04bf5030 // rdvl x16, #1
     WORD $0x9ad00800 // udiv x0, x0, x16
     WORD $0xea00001f // tst x0, x0                                  
@@ -10816,7 +10752,6 @@ mulSve_10x10Xor_end:
 TEXT ·mulNeon_10x1_64(SB), $0-88
     // Loading no tables to registers
     // Destination kept in GP registers
-    // Full registers estimated 46 YMM used
     MOVD n+80(FP), R0
     LSR  $6, R0
     TST  R0, R0
@@ -11239,7 +11174,6 @@ mulNeon_10x1_64_end:
 TEXT ·mulNeon_10x1_64Xor(SB), $0-88
     // Loading no tables to registers
     // Destination kept in GP registers
-    // Full registers estimated 46 YMM used
     MOVD n+80(FP), R0
     LSR  $6, R0
     TST  R0, R0
@@ -11671,7 +11605,6 @@ mulNeon_10x1_64Xor_end:
 TEXT ·mulNeon_10x2_64(SB), $8-88
     // Loading no tables to registers
     // Destination kept in GP registers
-    // Full registers estimated 89 YMM used
     MOVD n+80(FP), R0
     LSR  $6, R0
     TST  R0, R0
@@ -12274,7 +12207,6 @@ mulNeon_10x2_64_end:
 TEXT ·mulNeon_10x2_64Xor(SB), $8-88
     // Loading no tables to registers
     // Destination kept in GP registers
-    // Full registers estimated 89 YMM used
     MOVD n+80(FP), R0
     LSR  $6, R0
     TST  R0, R0
@@ -12893,7 +12825,6 @@ mulNeon_10x2_64Xor_end:
 TEXT ·mulNeon_10x3_64(SB), $8-88
     // Loading no tables to registers
     // Destination kept in GP registers
-    // Full registers estimated 130 YMM used
     MOVD n+80(FP), R0
     LSR  $6, R0
     TST  R0, R0
@@ -13680,7 +13611,6 @@ mulNeon_10x3_64_end:
 TEXT ·mulNeon_10x3_64Xor(SB), $8-88
     // Loading no tables to registers
     // Destination kept in GP registers
-    // Full registers estimated 130 YMM used
     MOVD n+80(FP), R0
     LSR  $6, R0
     TST  R0, R0
@@ -14490,7 +14420,6 @@ mulNeon_10x3_64Xor_end:
 TEXT ·mulNeon_10x4(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 89 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -15067,7 +14996,6 @@ mulNeon_10x4_end:
 TEXT ·mulNeon_10x4Xor(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 89 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -15664,7 +15592,6 @@ mulNeon_10x4Xor_end:
 TEXT ·mulNeon_10x5(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 110 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -16342,7 +16269,6 @@ mulNeon_10x5_end:
 TEXT ·mulNeon_10x5Xor(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 110 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -17045,7 +16971,6 @@ mulNeon_10x5Xor_end:
 TEXT ·mulNeon_10x6(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 131 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -17824,7 +17749,6 @@ mulNeon_10x6_end:
 TEXT ·mulNeon_10x6Xor(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 131 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -18633,7 +18557,6 @@ mulNeon_10x6Xor_end:
 TEXT ·mulNeon_10x7(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 152 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -19513,7 +19436,6 @@ mulNeon_10x7_end:
 TEXT ·mulNeon_10x7Xor(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 152 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -20428,7 +20350,6 @@ mulNeon_10x7Xor_end:
 TEXT ·mulNeon_10x8(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 173 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -21409,7 +21330,6 @@ mulNeon_10x8_end:
 TEXT ·mulNeon_10x8Xor(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 173 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -22430,7 +22350,6 @@ mulNeon_10x8Xor_end:
 TEXT ·mulNeon_10x9(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 194 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -23512,7 +23431,6 @@ mulNeon_10x9_end:
 TEXT ·mulNeon_10x9Xor(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 194 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -24639,7 +24557,6 @@ mulNeon_10x9Xor_end:
 TEXT ·mulNeon_10x10(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 215 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
@@ -25822,7 +25739,6 @@ mulNeon_10x10_end:
 TEXT ·mulNeon_10x10Xor(SB), NOSPLIT, $8-88
     // Loading no tables to registers
     // Destination kept on stack
-    // Full registers estimated 215 YMM used
     MOVD n+80(FP), R0
     LSR  $5, R0
     TST  R0, R0
