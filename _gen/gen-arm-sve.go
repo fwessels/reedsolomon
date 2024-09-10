@@ -106,7 +106,11 @@ func convertRoutine(asmBuf *bytes.Buffer, instructions []string) {
 		} else if wordOpcode.MatchString(instr) { // arm code
 			asmF("    %s\n", instr)
 		} else if strings.HasPrefix(instr, "//") { // comment
-			asmF("    %s\n", instr)
+			if strings.Contains(instr, "YMM used") {
+				// skip comments stating the estimated number of vector registers
+			} else {
+				asmF("    %s\n", instr)
+			}
 		} else if strings.HasSuffix(instr, ":") { // label
 			asmF("%s\n", patchLabel(instr))
 		} else {
@@ -399,11 +403,7 @@ func addArmSveVectorLength() (addInits []string) {
 				instr := strings.Split(strings.TrimSpace(line), "// lsr ")[1]
 				args := strings.Split(instr, ", ")
 				if len(args) == 3 && args[0] == args[1] {
-					// keep the original right shift, but reverse the effect (so effectively
-					// clearing out the lower bits so we cannot do eg. "half loops" )
-					line += "\n"
-					line += assemble(fmt.Sprintf("lsl %s, %s, %s", args[0], args[1], shift)) + "\n"
-					line += assemble(fmt.Sprintf("rdvl x16, %s", vl)) + "\n"
+					line = assemble(fmt.Sprintf("rdvl x16, %s", vl)) + "\n"
 					line += assemble(fmt.Sprintf("udiv %s, %s, x16", args[0], args[1]))
 				}
 			}
